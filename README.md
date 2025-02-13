@@ -10,7 +10,7 @@
 |                       | 🌾 Agricultural Drought Indicator (ADI)              | Measures the influence of droughts on agriculture and human settlements        | 🛰️ Satellite imagery (SPEI, Soil Moisture Index, NDVI) |
 |                       | 🌍 Land Cover (LC) Change Maps                      | Measures the influence of floods and droughts on agriculture and human settlements | 🛰️ Satellite imagery (NDVI)                  |
 | **Integration**       | 📌 Origin and Destination Attachment of migrants    | Gauges the attachment of migrants to their origin and destination using Twitter | 🐦 X (Formerly Twitter)                        |
-|                       | 💬 Social acceptance of migrants in destination countries | Quantifies average hate speech level and other statistics of migrant acceptance | 🐦 (Formerly) Twitter                        |
+|                       | 💬 Social acceptance of migrants in destination countries | Quantifies average hate speech level and other statistics of migrant acceptance | 🐦 X (Formerly Twitter)                        |
 | **Collection of data**| 📊 Multi-aspect Integrated Migration Indicators (MIMI) | Dataset of migration indicators built from traditional datasets and social network data | 🌎 UN DESA, OECD, IOM, UNHCR, SCI          |
 
 ### 🧪 Data Quality Assessments
