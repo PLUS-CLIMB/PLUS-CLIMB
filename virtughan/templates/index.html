@@ -1,0 +1,1654 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>VirtuGhan - A Virtual Computation Cube</title>
+    <link rel="icon" href="static/img/virtughan-logo.png" type="image/png">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css"/>
+    
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <!-- tailwind start -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+
+    <!-- for customization -->
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              clifford: '#da373d',
+            }
+          }
+        }
+      }
+    </script>
+
+  <!-- for custom css -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+    }
+  </style>
+    <!-- tailwind end -->
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      /* Custom thin scrollbar styles */
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+      }
+
+      .custom-scrollbar::-webkit-scrollbar-track {
+        border-radius: 100vh;
+        background: #fbfaf8;
+      }
+
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #b0b0b0;
+        border-radius: 100vh;
+        border: 3px solid rgb(86, 86, 86);
+      }
+
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #494949;
+      }
+      /* Custom styles for the icon hover effect */ 
+      #sidebar-clear-button:hover { 
+        color: #1f2937; 
+        /* Tailwind's gray-900 */ 
+        cursor: pointer;
+      }
+      
+    </style>
+    <style>
+      #map {
+          height: 500px;
+          width: 100%;
+      }
+      .draw-buttons {
+          display: flex;
+          justify-content: center;
+          margin-bottom: 10px;
+      }
+      .draw-buttons button {
+          margin: 0 5px;
+          padding: 10px;
+          cursor: pointer;
+      }
+  </style>
+  <style>
+    .upload-area.dragover {
+        border-color: #4A5568; /* Tailwind gray-700 */
+        background-color: #EDF2F7; /*Tailwind gray-100*/
+    }
+  </style>
+  <style>
+/*  Custom Range Slider */
+.slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 8px;
+      background: #d3d3d3;
+      border-radius: 5px;
+      outline: none;
+    }
+
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      background: #007bff;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 2px 0 rgba(0,0,0,0.5);
+    }
+
+    .slider::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      background: #007bff;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 2px 0 rgba(0,0,0,0.5);
+    }
+    /* Adding marks (dates) below the slider */
+    .slider + .slider-markers {
+      display: flex;
+      justify-content: space-between;
+      padding-top: 10px;
+    }
+
+    .slider + .slider-markers span {
+      font-size: 12px;
+      color: #6b7280; /* Tailwind gray-500 */
+    }
+
+    .custom-height-icon {
+            font-size: 2rem; 
+        }
+  </style>
+
+  <style>
+    .legends {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      background-color: white;
+      padding: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      border-radius: 5px;
+      display: flex;
+      flex-direction: column;
+      font-size:14px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+
+    .legend-color {
+      width: 20px;
+      height: 20px;
+      margin-right: 5px;
+    }
+
+
+    #compute_progressbar #compute_progress_text { 
+      font-size: 10px !important; 
+    }
+
+  </style>
+
+<style>
+  .color-option {
+      width: 100%;
+      height: 20px;
+      display: block;
+  }
+  .dropdown-color-select option {
+      height: 20px;
+  }
+</style>
+
+<style>
+  #geocodeError {
+    position: absolute;
+    display: none;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    padding: 25px;
+    width: 250px;
+    height: 150px;
+    background: #fff;
+    border: 2px solid #000;   
+    font-weight: bold;
+    font-size: 1.1em;
+    text-align: center;
+    z-index: 2000;
+}
+
+#errorCloseBtn {
+    position: absolute;
+    padding: 8px;    
+    top: 2px;
+    right: 4px;
+    font-weight: bold;
+    font-size: 0.96em;
+}
+
+#errorText {
+    margin-top: 30px;
+}
+</style>
+
+<style>
+ .leaflet-control-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.map-loader {
+  border: 4px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 4px solid #3498db;
+  width: 24px;
+  height: 24px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
+
+<style>
+  /* New loader styles */
+.html-loader {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 30px;
+  height: 30px;
+  border: 4px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 4px solid #3498db ;
+  animation: spin 1s linear infinite; 
+  display: none; /* Hide loader initially */
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+</style>
+<!-- Add custom CSS for the control button -->
+<style>
+  .leaflet-control-custom {
+    background: white;
+    background-size: 20px 20px;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    background-image: url('static/img/hand-regular.png'); /* Replace with your hand icon URL */
+    background-repeat: no-repeat;
+    background-position: center;
+    padding: 2px;
+  }
+
+  /* Hide control button on larger screens */
+  @media (min-width: 768px) {
+    .leaflet-control-custom {
+      display: none;
+    }
+  }
+</style>
+
+  </head>
+
+<!-- Google tag (gtag.js) start-->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-314GJ7M9QL"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-314GJ7M9QL');
+</script>
+
+<script>
+  function trackRawDataDownload(filename) {
+    gtag('event', 'download', {
+      'event_category': 'Raw Data Downloads',
+      'event_label': filename
+    });
+  }
+
+  function trackResultDownload(filename) {
+    gtag('event', 'download', {
+      'event_category': 'Computed Results Download',
+      'event_label': filename
+    });
+  }
+
+  function trackTimeSeriesDownload(filename) {
+    gtag('event', 'download', {
+      'event_category': 'Time Series Results Download',
+      'event_label': filename
+    });
+  }
+
+</script>
+
+<!-- track clicks -->
+<script>
+  function trackLiveViewButtonClick(buttonId) {
+    gtag('event', 'click', {
+      'event_category': 'Live View Button Clicks',
+      'event_label': buttonId
+    });
+  }
+  function trackExportButtonClick(buttonId) {
+    gtag('event', 'click', {
+      'event_category': 'Visualize and Export Button Clicks',
+      'event_label': buttonId
+    });
+  }
+</script>
+
+
+<!-- Google Analytics End -->
+
+  <body>
+    <header class="bg-white shadow-md py-4 border-b border-gray-300">
+      <div class="container mx-auto flex items-center justify-between px-4 relative">
+        <!-- Logo -->
+        <div class="flex items-center">
+          <a href="/"><img src="static/img/virtughan-logo.png" alt="Logo" class="h-10 w-10 mr-2"></a>
+          <span class="text-xl font-bold text-gray-800">VirtuGhan</span>
+        </div>
+        <!-- Hamburger Menu for Mobile -->
+        <div class="block md:hidden absolute right-4 top-4">
+          <button id="nav-toggle" class="text-gray-600 focus:outline-none">
+            <i class="fas fa-bars fa-2x"></i>
+          </button>
+        </div>
+        <!-- Navigation Links -->
+        <nav id="nav-content" class="hidden md:flex space-x-8">
+          <a href="/" class="text-gray-600 hover:text-gray-900">Data</a>
+          <a href="/about" class="text-gray-600 hover:text-gray-900">About</a>
+          <a href="https://kshitijrajsharma.github.io/virtughan/" target="_blank" class="text-gray-600 hover:text-gray-900">Docs</a>
+          <a href="https://github.com/kshitijrajsharma/VirtuGhan" target="_blank" class="text-gray-600 hover:text-gray-900">
+            <i class="fab fa-github custom-height-icon"></i>
+          </a>
+        </nav>
+      </div>
+      <!-- Mobile Navigation Links -->
+      <div id="nav-content-mobile" class="hidden absolute top-16 right-0 max-w-sm bg-white space-y-2 py-2 px-4 z-50">
+        <a href="/" class="block text-gray-600 hover:text-gray-900">Data</a>
+        <a href="/about" class="block text-gray-600 hover:text-gray-900">About</a>
+        <a href="https://github.com/kshitijrajsharma/VirtuGhan" target="_blank" class="block text-gray-600 hover:text-gray-900">
+          <i class="fab fa-github custom-height-icon"></i>
+        </a>
+      </div>
+    </header>
+    <div class = "flex flex-col md:flex-row h-screen overflow-y-auto custom-scrollbar md:overflow-hidden">
+      <div id="info" class="w-full md:w-1/4 md:min-w-[25%] space-y-12 bg-gray-50 z-10 border-r border-gray-300">
+      <div class="container mx-auto pb-4 pt-1">
+        <div class="tabs">
+          <div class="flex justify-center mb-2">
+            <button id="filterTab" class="tab w-1/3 py-2 text-center text-gray-600 border-b-2 border-transparent hover:border-blue-500 focus:outline-none focus:border-blue-500">Live View</button>
+            <button id="resultTab" class="tab w-1/3 py-2 text-center text-gray-600 border-b-2 border-transparent hover:border-blue-500 focus:outline-none focus:border-blue-500">Result</button>
+            <button id="exportTab" class="tab w-1/3 py-2 text-center text-gray-600 border-b-2 border-transparent hover:border-blue-500 focus:outline-none focus:border-blue-500">Export</button>
+          </div>
+          <div class="tab-content">
+            <div class="tab-panel hidden">
+      
+            <div class="border-b border-gray-900/10 p-4 overflow-y-scroll custom-scrollbar tab-scrollable-content">
+              <!-- <h2 class="text-base/7 font-semibold text-gray-900">Apply Filters</h2>
+              <p class="mt-1 text-sm/6 text-gray-600">Select the filters you want to apply.</p> -->
+              <div id = "filterOption_search" class = "pb-4">
+                <label id="listbox-label_search" class="block text-sm/6 font-medium text-gray-900">Filter Option <span class="text-lg text-black-600">*</span></label>
+                <div class="relative mt-2">
+                  <button id="select-button_search" type="button" class="cursor-pointer grid w-full cursor-default grid-cols-1 rounded-md bg-white py-1.5 pl-3 pr-2 text-left text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="listbox-label_search">
+                    <span class="col-start-1 row-start-1 flex items-center gap-3 pr-6">
+                      <img src="static/img/select-icon.png" alt="" class="size-5 shrink-0 rounded-full">
+                      <span id = "selected-filter-value_search" class="block truncate text-gray-800">Select Option</span>
+                    </span>
+                    <svg class="col-start-1 row-start-1 size-5 self-center justify-self-end text-gray-500 sm:size-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                      <path fill-rule="evenodd" d="M5.22 10.22a.75.75 0 0 1 1.06 0L8 11.94l1.72-1.72a.75.75 0 1 1 1.06 1.06l-2.25 2.25a.75.75 0 0 1-1.06 0l-2.25-2.25a.75.75 0 0 1 0-1.06ZM10.78 5.78a.75.75 0 0 1-1.06 0L8 4.06 6.28 5.78a.75.75 0 0 1-1.06-1.06l2.25-2.25a.75.75 0 0 1 1.06 0l2.25 2.25a.75.75 0 0 1 0 1.06Z" clip-rule="evenodd" />
+                    </svg>
+                  </button>
+              
+                  <ul id="select-list_search" class="hidden absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm" tabindex="-1" role="listbox" aria-labelledby="listbox-label_search" aria-activedescendant="listbox-option-3">
+                    <li class="template-filters relative select-none py-2 pl-3 pr-9 text-gray-900 cursor-pointer hover:bg-gray-100" id="listbox-option-0_search" role="option">
+                      <div class="flex items-center">
+                        <img src="static/img/ndvi.png" alt="" class="size-5 shrink-0 rounded-full">
+                        <span class="template-filters-value ml-3 block truncate font-normal" value= "NDVI">NDVI</span>
+                      </div>
+                      <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-600">
+                        <svg class="size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                          <!-- <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" /> -->
+                        </svg>
+                      </span>
+                    </li>
+                    <!-- More items... -->
+                    <li class="template-filters relative select-none py-2 pl-3 pr-9 text-gray-900 cursor-pointer hover:bg-gray-100" id="listbox-option-1_search" role="option">
+                      <div class="flex items-center">
+                        <img src="static/img/basemap.png" alt="" class="size-5 shrink-0 rounded-full">
+                        <span class="template-filters-value ml-3 block truncate font-normal" value = "NDWI">NDWI</span>
+                      </div>
+                      <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-600">
+                        <svg class="size-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                          <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" />
+                        </svg>
+                      </span>
+                    </li>
+                    <li class="template-filters relative select-none py-2 pl-3 pr-9 text-gray-900 cursor-pointer hover:bg-gray-100" id="listbox-option-1_search" role="option">
+                      <div class="flex items-center">
+                        <img src="static/img/visual.png" alt="" class="size-5 shrink-0 rounded-full">
+                        <span class="template-filters-value ml-3 block truncate font-normal" value = "visual">Visual Bands</span>
+                      </div>
+                      <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-600">
+                        <svg class="size-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                          <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" />
+                        </svg>
+                      </span>
+                    </li>
+                    <hr/>
+                    <li id = "custom-filter_search" class="relative select-none py-2 pl-3 pr-9 text-gray-900 cursor-pointer hover:bg-gray-100" id="listbox-option-1_search" role="option">
+                      <div class="flex items-center">
+                        <img src="static/img/plus-blue.png" alt="" class="size-5 shrink-0 rounded-full">
+                        <span class="ml-3 block truncate font-normal text-blue-500">Custom Filter</span>
+                      </div>
+                      <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-600">
+                        <svg class="size-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                          <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" />
+                        </svg>
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+                <label id = "formulaHeading" class="block text-xs font-medium text-gray-600 pb-1 pt-1 hidden">Custom: <span id="formulaText" class = "break-words w-64 text-xs text-gray-500" ></span></label>
+              </div>
+              <div class = "pb-4">
+                <label class="block text-sm/6 font-medium text-gray-900 pb-4">Select Date</label>
+                <div class="relative h-10 w-full min-w-[200px] mb-4">
+                  <input id="start-date" class="bg-white my-dates peer h-full w-full rounded-[7px] border border-blue-gray-200 border-t-transparent bg-transparent px-3 py-2.5 font-sans text-sm font-normal text-gray-800 outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 focus:border-2 focus:border-gray-900 focus:border-t-transparent focus:outline-0 disabled:border-0 disabled:bg-blue-gray-50" placeholder=" "/>
+                  <label id = "start-date" class="before:content[' '] after:content[' '] pointer-events-none absolute left-0 -top-1.5 flex h-full w-full select-none !overflow-visible truncate text-[11px] font-normal leading-tight text-gray-500 transition-all before:pointer-events-none before:mt-[6.5px] before:mr-1 before:box-border before:block before:h-1.5 before:w-2.5 before:rounded-tl-md before:border-t before:border-l before:border-blue-gray-200 before:transition-all after:pointer-events-none after:mt-[6.5px] after:ml-1 after:box-border after:block after:h-1.5 after:w-2.5 after:flex-grow after:rounded-tr-md after:border-t after:border-r after:border-blue-gray-200 after:transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:leading-[3.75] peer-placeholder-shown:text-blue-gray-500 peer-placeholder-shown:before:border-transparent peer-placeholder-shown:after:border-transparent peer-focus:text-[11px] peer-focus:leading-tight peer-focus:text-gray-900 peer-focus:before:border-t-2 peer-focus:before:border-l-2 peer-focus:before:!border-gray-900 peer-focus:after:border-t-2 peer-focus:after:border-r-2 peer-focus:after:!border-gray-900 peer-disabled:text-transparent peer-disabled:before:border-transparent peer-disabled:after:border-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500">
+                    Start Date
+                  </label>
+                </div>
+                <div class="relative h-10 w-full min-w-[200px]">
+                  <input id="end-date" class="bg-white my-dates peer h-full w-full rounded-[7px] border border-blue-gray-200 border-t-transparent bg-transparent px-3 py-2.5 font-sans text-sm font-normal text-gray-800 outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 focus:border-2 focus:border-gray-900 focus:border-t-transparent focus:outline-0 disabled:border-0 disabled:bg-blue-gray-50" placeholder=" "/>
+                  <label id = "" class="before:content[' '] after:content[' '] pointer-events-none absolute left-0 -top-1.5 flex h-full w-full select-none !overflow-visible truncate text-[11px] font-normal leading-tight text-gray-500 transition-all before:pointer-events-none before:mt-[6.5px] before:mr-1 before:box-border before:block before:h-1.5 before:w-2.5 before:rounded-tl-md before:border-t before:border-l before:border-blue-gray-200 before:transition-all after:pointer-events-none after:mt-[6.5px] after:ml-1 after:box-border after:block after:h-1.5 after:w-2.5 after:flex-grow after:rounded-tr-md after:border-t after:border-r after:border-blue-gray-200 after:transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:leading-[3.75] peer-placeholder-shown:text-blue-gray-500 peer-placeholder-shown:before:border-transparent peer-placeholder-shown:after:border-transparent peer-focus:text-[11px] peer-focus:leading-tight peer-focus:text-gray-900 peer-focus:before:border-t-2 peer-focus:before:border-l-2 peer-focus:before:!border-gray-900 peer-focus:after:border-t-2 peer-focus:after:border-r-2 peer-focus:after:!border-gray-900 peer-disabled:text-transparent peer-disabled:before:border-transparent peer-disabled:after:border-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500">
+                    End Date
+                  </label>
+                </div>
+              </div>
+              <div class="pb-4">
+                <label class="block text-sm/6 font-medium text-gray-900 pb-1" >Select Cloud Cover <i title = "Less than the input value in percentage" class="info-icons fa-regular fa-circle-question text-gray-500 text-xs"></i></label>
+                
+                <div class="bg-white mt-4">
+                  <div class="relative bg-inherit">
+                      <input type="number" id="cloud-cover" name="" value = "30" style = "font-size:14px !important;" class="peer bg-transparent h-10 w-full rounded-lg text-gray-800 placeholder-transparent ring-1 px-2 ring-gray-200 focus:ring-sky-600 focus:outline-none focus:border-rose-600" placeholder="Cloud Cover"/><label for="" style = "font-size:12px !important;" class="absolute cursor-text left-0 -top-3 text-sm text-gray-500 bg-inherit mx-1 px-1 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 peer-placeholder-shown:top-2 peer-focus:-top-3 peer-focus:text-sky-600 peer-focus:text-sm transition-all">Cloud Cover</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-4 mt-2">
+                <label class="block text-sm font-medium text-gray-800 pb-1">Select Time Dimension <i title = "If not checked, latest image from time range will be processed by default." class="info-icons fa-regular fa-circle-question text-gray-500 text-xs"></i></label>
+                <div class="flex items-center">
+                  <input id="timeSeries_search" type="checkbox" name="option" class="output_type form-radio h-4 w-4 text-blue-600">
+                  <label for="timeSeries_search" class="ml-2 text-sm text-gray-600">Analyze data over time</label>
+                </div>
+              </div>
+              <div id="operation-container_search" class="w-full hidden">
+                <label class="block text-sm font-medium text-gray-700">Operation</label>
+                <select id="operation_menu_search" style = "border:1px solid #dedede;" class="mt-1 block w-full pl-3 pr-10 py-2 bg-white text-gray-700 border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                    <!-- <option value="min" class="text-gray-600">Select Option</option> -->
+                    <option value="median" class="text-gray-600">Median</option>
+                    <option value="mean" class="text-gray-600">Mean</option>
+                    <option value="min" class="text-gray-600">Min</option>
+                    <option value="max" class="text-gray-600">Max</option>
+                    <option value="std" class="text-gray-600">Std</option>
+                    <option value="sum" class="text-gray-600">Sum</option>
+                    <option value="var" class="text-gray-600">Variance</option>
+                    <option value="mode" class="text-gray-600">Mode</option>
+                </select>
+            </div>
+
+              <div class="mt-4">
+                <label class="block text-sm/6 font-medium text-gray-900 pb-1">BBOX: <span id="coords" class = "break-words w-64 text-xs text-gray-500" ></span></label>
+                
+                <label class="block text-sm/6 font-medium text-gray-900 pb-1">Zoom Level: <span class = "text-xs text-gray-500" id="zoom-level"></span></label>
+              </div>
+            </div>
+            <div class="bottom-sticky-buttons sticky bottom-0 bg-white p-2 w-full flex justify-end">
+              <button id="search-clear-button" class="clear-visualize-filter bg-transparent rounded-lg text-gray-500 text-sm text-center self-center px-3 py-2 my-2 mx-2">
+                <i class="fa-solid fa-rotate-right"></i> Clear
+              </button>
+              <button id="search-button" title="Select Filter Above to Visualize" class="bg-gray-500 pointer-events-none text-white rounded-lg text-sm text-center self-center px-3 py-2 my-2 mx-2">
+                <i class="fa-regular fa-eye"></i> Visualize
+              </button>
+            </div>            
+            </div>
+            <div class="tab-panel hidden overflow-y-auto custom-scrollbar">
+              <!-- Content for Tab 2 -->
+              <div id="sidebar" class="p-4 tab-scrollable-content" >
+                <div id="layerSwitcherContainer" class="hidden w-full max-w-md mx-auto rounded-lg pb-4"> 
+                  <label class="block text-sm/6 font-medium text-gray-900 pb-2">Output Layer</label> 
+                  <div id="layerSwitcherList" class="">
+                    <div id = "searchLayerSwitcher" class="progressItem p-2 bg-gray-100 rounded-md shadow-sm mt-2 hidden">
+                      <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center space-x-2">
+                          <input id="search_layer" type="checkbox" class="layerSwitcher form-checkbox h-4 w-4 text-blue-600" checked>
+                          <label class="block text-sm/6 font-medium text-gray-700">Search Output Layer</label>
+                        </div>
+                        <!-- <button title="Zoom to Layer" class="text-gray-500 hover:text-gray-700">
+                          <i id="zoom_liveLayer" class="zoom-to-layer fas fa-search-plus"></i>
+                        </button> -->
+                      </div>
+                      <div class="flex items-center mb-2">
+                        <span class="text-sm mr-2 text-gray-500">Transparency:</span>
+                        <input id = "transparency_liveLayer" type="range" class="transparency-slider h-1 w-full" style="accent-color: gray;" min="0" max="100" value="100">
+                      </div>
+                      <!-- <div id="search_progressbar" class="relative w-full bg-gray-300 h-3">
+                        <div class="absolute inset-0 flex items-center justify-center text-white" style="font-size:10px;" id="search_progress_text">0%</div>
+                        <div class="bg-green-500 h-3 rounded transition-all duration-500 ease-in-out" id="search_progress" style="width: 0%"></div>
+                      </div> -->
+                      <!-- <div class="flex items-center justify-end mt-2 space-x-4">
+                        <button title="Download" class="text-gray-500 hover:text-gray-700">
+                          <i id = "download-result-image" class="fas fa-download"></i>
+                        </button>
+                        <button title="View" class="text-gray-500 hover:text-gray-700">
+                          <i id = "view-result-image" class="fas fa-eye"></i>
+                        </button>
+                      </div> -->
+                    </div>
+                    <div id = "searchBboxLayerSwitcher" class="progressItem p-2 bg-gray-100 rounded-md shadow-sm mt-2 hidden">
+                      <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center space-x-2">
+                          <input id="search_bbox_layer" type="checkbox" class="layerSwitcher form-checkbox h-4 w-4 text-blue-600">
+                          <label class="block text-sm/6 font-medium text-gray-700">Searched Images Bbox</label>
+                        </div>
+                        <button title="Zoom to Layer" class="text-gray-500 hover:text-gray-700">
+                          <i id="zoom_geojsonLayer" class="zoom-to-layer fas fa-search-plus"></i>
+                        </button>
+                      </div>
+                      <div class="flex items-center mb-2">
+                        <span class="text-sm mr-2 text-gray-500">Transparency:</span>
+                        <input id = "transparency_geojsonLayer" type="range" class="transparency-slider h-1 w-full text-gray-500" style="accent-color: gray;" min="0" max="100" value="100">
+                      </div>
+                      <!-- <div id="search_bbox_progressbar" class="relative w-full bg-gray-300 h-3">
+                        <div class="absolute inset-0 flex items-center justify-center text-white" style="font-size:10px;" id="search_progress_text">0%</div>
+                        <div class="bg-green-500 h-3 rounded transition-all duration-500 ease-in-out" id="search_progress" style="width: 0%"></div>
+                      </div> -->
+                      <!-- <div class="flex items-center justify-end mt-2 space-x-4">
+                        <button title="Download" class="text-gray-500 hover:text-gray-700">
+                          <i id = "download-result-image" class="fas fa-download"></i>
+                        </button>
+                        <button title="View" class="text-gray-500 hover:text-gray-700">
+                          <i id = "view-result-image" class="fas fa-eye"></i>
+                        </button>
+                      </div> -->
+                    </div>
+
+                    <div id="computeLayerSwitcher" class="progressItem p-2 bg-gray-100 rounded-md shadow-sm mt-2 hidden">
+                      <div id = "layerSwitcherBox" class = "hidden">
+                      <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center space-x-2">
+                          <input id="compute_layer" type="checkbox" class="layerSwitcher form-checkbox h-4 w-4 text-blue-600" checked>
+                          <label for="compute_layer" class="block text-sm font-medium text-gray-700">Export Output Layer</label>
+                        </div>
+                        <button title="Zoom to Layer" class="text-gray-500 hover:text-gray-700">
+                          <i id="zoom_computeLayer" class="zoom-to-layer fas fa-search-plus"></i>
+                        </button>
+                      </div>
+                      <div class="flex items-center mb-2">
+                        <label for="transparency_computeLayer" class="text-sm mr-2 text-gray-500">Transparency:</label>
+                        <input id="transparency_computeLayer" type="range" class="transparency-slider h-1 w-full" style="accent-color: gray;" min="0" max="100" value="100">
+                      </div>
+                      <div id="colorPalettes" class="relative inline-block w-full">
+                        <button id="PaletteSelectButton" class="block w-full px-4 py-2 mt-1 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" onclick="toggleDropdown()">
+                            <!-- Default selected color will be displayed here -->
+                        </button>
+                        <div id="PaletteSelect" class="absolute z-10 hidden w-full mt-1 bg-white rounded-md shadow-lg">
+                            <ul class="py-1 text-base text-gray-700 border border-gray-300 rounded-md max-h-56 overflow-y-auto focus:outline-none sm:text-sm">
+                                <!-- Options will be generated here -->
+                            </ul>
+                        </div>
+                    </div>
+                      <div id="after-compute-buttons" class="flex items-center justify-end mt-2 space-x-4 hidden">
+                        <button id="download-result-image" title="Download" class="p-2 border border-gray-400 text-white hover:bg-blue-600 bg-blue-500 rounded text-xs"> Download 
+                          <i class="fas fa-download"></i>
+                        </button>
+                        <button id="view-result-image" title="View" class="p-2 border border-gray-400 text-white hover:bg-blue-600 bg-blue-500 rounded text-xs">View 
+                          <i class="fas fa-eye"></i>
+                        </button>
+                      </div>
+                      </div>
+                      <div id="download-complete">
+                        <label class="block text-xs font-medium text-gray-900 pb-2">Layer Ready to Download!!!</label>
+                        <button id="download-band-image" title="Download" class="p-2 border border-gray-400 text-white hover:bg-blue-600 bg-blue-500 rounded text-xs"> Download 
+                          <i class="fas fa-download"></i>
+                        </button>
+                      </div>
+                      
+                      <div id="compute_progressbar" class="relative w-full">
+                        <div class="mb-4">
+                          <label id = "computation_progress_text" class="block text-xs font-medium text-gray-900 pb-2">Computation Progress</label>
+                          <ul id="ProgressTextsBefore" class="list-none list-inside text-xs text-gray-700 mb-2 max-h-40 overflow-y-auto custom-scrollbar">
+                            <li style = "font-size: 10px;">Please Wait Computing...</li>
+                          </ul>
+                        </div>
+                        <div class="relative w-full bg-gray-300 h-3 rounded mt-4">
+                          <div class="absolute inset-0 flex items-center justify-center text-white" id="compute_progress_text">0%</div>
+                          <div class="bg-green-500 h-full rounded transition-all duration-500 ease-in-out" id="compute_progress" style="width: 0%"></div>
+                        </div>
+                      </div>
+                      
+                      
+                    </div>
+                          
+                    
+                  </div> 
+                </div>              
+                <div class="flex items-center justify-between pt-2">
+                  <label id = "display-image-count" class="block  font-medium text-gray-900 pb-4">Images: <span class="text-xs"><span></label>
+                  <span id="sidebar-clear-button" class="clear-visualize-filter text-gray-500 text-xs"><i class="fa-solid fa-rotate-right"></i> Clear</span>
+                </div>
+                <div id="feature-list" style = "min-height: 100px; max-height: 450px;">
+                  <label class="block text-sm font-medium text-gray-400 pt-4">Apply the Filter First!!!</label>
+                </div>
+              </div>
+            </div>
+            <div class="tab-panel hidden">
+              <!-- Content for Tab 3 -->
+              <div id="sidebar1" class = "overflow-y-scroll custom-scrollbar  p-4 tab-scrollable-content" style = "max-height: 550px;">
+               <div class = "pb-4">
+                <label class="block text-sm font-medium text-gray-800 pb-2">Select Area of Interest <i title = "Select the area within map window or draw" class="info-icons fa-regular fa-circle-question text-gray-500 text-xs"></i></label>
+                <!-- dropdown start -->
+                <div class="relative mt-2">
+                  <button id="select-button-bbox" type="button" class="grid w-full cursor-default grid-cols-1 rounded-md bg-white py-1.5 pl-3 pr-2 text-left text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="listbox-label">
+                    <span class="col-start-1 row-start-1 flex items-center gap-3 pr-6">
+                      <i class="fa-regular fa-square"></i>
+                      <span id = "selected-filter-value-bbox" class="block truncate text-gray-600">Map Window</span>
+                    </span>
+                    <svg class="col-start-1 row-start-1 size-5 self-center justify-self-end text-gray-500 sm:size-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                      <path fill-rule="evenodd" d="M5.22 10.22a.75.75 0 0 1 1.06 0L8 11.94l1.72-1.72a.75.75 0 1 1 1.06 1.06l-2.25 2.25a.75.75 0 0 1-1.06 0l-2.25-2.25a.75.75 0 0 1 0-1.06ZM10.78 5.78a.75.75 0 0 1-1.06 0L8 4.06 6.28 5.78a.75.75 0 0 1-1.06-1.06l2.25-2.25a.75.75 0 0 1 1.06 0l2.25 2.25a.75.75 0 0 1 0 1.06Z" clip-rule="evenodd" />
+                    </svg>
+                  </button>
+              
+                  <ul id="select-list-bbox" class="hidden absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm" tabindex="-1" role="listbox" aria-labelledby="listbox-label" aria-activedescendant="listbox-option-3">
+                    <li id = "map-window-bbox" class="relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900" id="listbox-option-0" role="option">
+                      <div class="flex items-center">
+                        <i class="fa-regular fa-square"></i>
+                        <span class="ml-3 block truncate font-normal text-gray-600">Map Window</span>
+                      </div>
+                      <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-600">
+                        <svg class="size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                          <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" />
+                        </svg>
+                      </span>
+                    </li>
+                    <!-- More items... -->
+                    <li id="draw-aoi-on-map" class="relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900" id="listbox-option-1" role="option">
+                      <div class="flex items-center">
+                        <i class="fa-solid fa-draw-polygon"></i>
+                        <span class="ml-3 block truncate font-normal text-gray-600">Draw AOI on Map</span>
+                      </div>
+                      <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-600">
+                        <svg class="size-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                          <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" />
+                        </svg>
+                      </span>
+                    </li>
+                    <li id = "upload-file-bbox" class="hidden relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900" role="option">
+                      <div class="flex items-center">
+                        <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                        <span class="ml-3 block truncate font-normal text-gray-600">Upload File</span>
+                      </div>
+                      <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-600">
+                        <svg class="size-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                          <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" />
+                        </svg>
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+                <!-- dropdown end -->
+                <div class = "mt-1 p-1 w-full">
+                  <label class="block text-xs text-gray-500 pb-1">BBOX:
+                  <div id="map-window-content" class = "break-words w-64 text-xs text-gray-500 w-full" >
+
+                  </div>
+                  </label>
+                  <div id = "draw-bbox-option" class="hidden">
+                    <div class="draw-buttons"> <button id="draw-point" title="Draw Point text-gray-600" class=" hover:bg-gray-50"><i class="fas fa-map-marker-alt"></i> Point</button> 
+                      <button id="draw-polygon" title="Draw Polygon" class=" hover:bg-gray-50 text-gray-600"><i class="fas fa-draw-polygon"></i> Polygon</button> 
+                      <button id="draw-rectangle" title="Draw Rectangle" class=" hover:bg-gray-50 text-gray-600"><i class="fas fa-vector-square"></i> Rectangle</button> </div>
+                  </div>
+                  <div id = "upload-bbox-file-option" class="hidden">
+                      <span>This is upload bbox section</span>
+                  </div>
+                </div>
+                <div>
+
+                </div>
+                </div>
+
+                <div class="rounded-md shadow-sm mb-6">
+                  <label id="listbox-label_export" class="block text-sm/6 font-medium text-gray-800">Select Action <i title = "Analyze will help to perform operations and download directly downloads the original image bands" class="info-icons fa-regular fa-circle-question text-gray-500 text-xs"></i></label>
+                  <div class="flex items-center space-x-4">
+                    <div class="flex items-center p-2">
+                      <input type="radio" id="analyze-data" name="option" value="analyze" class="radio-action form-radio h-4 w-4 text-blue-600" checked>
+                      <label for="analyze" class="ml-2 text-sm text-gray-700">Analyze</label>
+                    </div>
+                    <div class="flex items-center">
+                      <input type="radio" id="download-data" name="option" value="download" class="radio-action form-radio h-4 w-4 text-blue-600">
+                      <label for="download" class="ml-2 text-sm text-gray-700">Download</label>
+                    </div>
+                  </div>
+                </div>
+                
+
+                <div id = "export-filter-option" class = "pb-4">
+                  <div id = "filterOption_export" class = "">
+                    <label id="listbox-label_export" class="block text-sm/6 font-medium text-gray-800">Filter Option <span class="text-lg text-black-600">*</span></label>
+                    <div class="relative mt-2">
+                      <button id="select-button_export" type="button" class="cursor-pointer grid w-full cursor-default grid-cols-1 rounded-md bg-white py-1.5 pl-3 pr-2 text-left text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="listbox-label_export">
+                        <span class="col-start-1 row-start-1 flex items-center gap-3 pr-6">
+                          <img src="static/img/select-icon.png" alt="" class="size-5 shrink-0 rounded-full">
+                          <span id = "selected-filter-value_export" class="block truncate">Select Option</span>
+                        </span>
+                        <svg class="col-start-1 row-start-1 size-5 self-center justify-self-end text-gray-500 sm:size-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                          <path fill-rule="evenodd" d="M5.22 10.22a.75.75 0 0 1 1.06 0L8 11.94l1.72-1.72a.75.75 0 1 1 1.06 1.06l-2.25 2.25a.75.75 0 0 1-1.06 0l-2.25-2.25a.75.75 0 0 1 0-1.06ZM10.78 5.78a.75.75 0 0 1-1.06 0L8 4.06 6.28 5.78a.75.75 0 0 1-1.06-1.06l2.25-2.25a.75.75 0 0 1 1.06 0l2.25 2.25a.75.75 0 0 1 0 1.06Z" clip-rule="evenodd" />
+                        </svg>
+                      </button>
+                  
+                      <ul id="select-list_export" class="hidden absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm" tabindex="-1" role="listbox" aria-labelledby="listbox-label_export" aria-activedescendant="listbox-option-3">
+                        <li class="template-filters relative select-none py-2 pl-3 pr-9 text-gray-900 cursor-pointer hover:bg-gray-100" id="listbox-option-0" role="option">
+                          <div class="flex items-center">
+                            <img src="static/img/ndvi.png" alt="" class="size-5 shrink-0 rounded-full">
+                            <span class="template-filters-value ml-3 block truncate font-normal" value= "NDVI">NDVI</span>
+                          </div>
+                          <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-600">
+                            <svg class="size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                              <!-- <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" /> -->
+                            </svg>
+                          </span>
+                        </li>
+                        <!-- More items... -->
+                        <li class="template-filters relative select-none py-2 pl-3 pr-9 text-gray-900 cursor-pointer hover:bg-gray-100" id="listbox-option-1" role="option">
+                          <div class="flex items-center">
+                            <img src="static/img/basemap.png" alt="" class="size-5 shrink-0 rounded-full">
+                            <span class="template-filters-value ml-3 block truncate font-normal" value = "NDWI">NDWI</span>
+                          </div>
+                          <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-600">
+                            <svg class="size-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                              <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" />
+                            </svg>
+                          </span>
+                        </li>
+                        <li class="template-filters relative select-none py-2 pl-3 pr-9 text-gray-900 cursor-pointer hover:bg-gray-100" id="listbox-option-1" role="option">
+                          <div class="flex items-center">
+                            <img src="static/img/visual.png" alt="" class="size-5 shrink-0 rounded-full">
+                            <span class="template-filters-value ml-3 block truncate font-normal" value = "visual">Visual Bands</span>
+                          </div>
+                          <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-600">
+                            <svg class="size-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                              <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" />
+                            </svg>
+                          </span>
+                        </li>
+                        <hr/>
+                        <li id = "custom-filter_export" class="relative select-none py-2 pl-3 pr-9 text-gray-900 cursor-pointer hover:bg-gray-100" id="listbox-option-1" role="option">
+                          <div class="flex items-center">
+                            <img src="static/img/plus-blue.png" alt="" class="size-5 shrink-0 rounded-full">
+                            <span class="ml-3 block truncate font-normal text-blue-500">Custom Filter</span>
+                          </div>
+                          <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-600">
+                            <svg class="size-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                              <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" />
+                            </svg>
+                          </span>
+                        </li>
+                      </ul>
+                    </div>
+                    
+                  </div>
+                  <!-- <label class="block text-sm font-medium text-gray-700 pb-2">Set the Formula</label>
+                  <button id="setFormula-export" class="w-full bg-white text-gray-500 border-gray-600 rounded-md px-4 py-2 flex items-center text-sm" style="border: 1px solid #dedede;">
+                    <img src="static/img/select-icon.png" alt="" class="size-5 shrink-0 rounded-full mr-2">Set the formula
+                  </button>                   -->
+                  <div id = "custom-formula-view_export" class = "p-1 border border-gray-300 w-full bg-white hidden">
+                    <label id = "formulaHeading-export" class="block text-xs font-medium text-gray-600 pb-1 pt-1">Custom Formula: <span id="formula-text-export" class = "break-words w-64 text-xs text-gray-500" ></span></label>
+                  </div>
+                </div>
+
+
+                <div id="band-list-container" class="w-full pb-4 hidden">
+                  <label id="listbox-label_export" class="block text-sm font-medium text-gray-800">Select Bands to Download <span class="text-lg text-black-600">*</span></label>
+                  <div class="relative bg-white">
+                    <button id="dropdownButtonBands" class="mt-2 block w-full pl-3 pr-10 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm flex flex-auto">
+                      <img src="static/img/select-icon.png" alt="" class="size-5 shrink-0 rounded-full mr-2">
+                       Select Bands
+                    </button>
+                    <div id="dropdownMenuBands" class="hidden absolute mt-2 w-full bg-white border border-gray-300 rounded-md shadow-lg z-10">
+                      <div class="max-h-60 overflow-auto custom-scrollbar">
+                        <label class="flex items-center px-3 py-2"><input type="checkbox" value="VISUAL" class="form-checkbox h-4 w-4 text-blue-600 band-checkbox"><span class="ml-2 text-gray-700 text-sm">VISUAL Bands</span></label>
+                        <label class="flex items-center px-3 py-2"><input type="checkbox" value="RED" class="form-checkbox h-4 w-4 text-blue-600 band-checkbox"><span class="ml-2 text-gray-700 text-sm">RED</span></label>
+                        <label class="flex items-center px-3 py-2"><input type="checkbox" value="GREEN" class="form-checkbox h-4 w-4 text-blue-600 band-checkbox"><span class="ml-2 text-gray-700 text-sm">GREEN</span></label>
+                        <label class="flex items-center px-3 py-2"><input type="checkbox" value="BLUE" class="form-checkbox h-4 w-4 text-blue-600 band-checkbox"><span class="ml-2 text-gray-700 text-sm">BLUE</span></label>
+                        <label class="flex items-center px-3 py-2"><input type="checkbox" value="NIR" class="form-checkbox h-4 w-4 text-blue-600 band-checkbox"><span class="ml-2 text-gray-700 text-sm">NIR</span></label>
+                        <label class="flex items-center px-3 py-2"><input type="checkbox" value="SWIR22" class="form-checkbox h-4 w-4 text-blue-600 band-checkbox"><span class="ml-2 text-gray-700 text-sm">SWIR22</span></label>
+                        <label class="flex items-center px-3 py-2"><input type="checkbox" value="REDEDGE2" class="form-checkbox h-4 w-4 text-blue-600 band-checkbox"><span class="ml-2 text-gray-700 text-sm">REDEDGE2</span></label>
+                        <label class="flex items-center px-3 py-2"><input type="checkbox" value="REDEDGE3" class="form-checkbox h-4 w-4 text-blue-600 band-checkbox"><span class="ml-2 text-gray-700 text-sm">REDEDGE3</span></label>
+                        <label class="flex items-center px-3 py-2"><input type="checkbox" value="REDEDGE1" class="form-checkbox h-4 w-4 text-blue-600 band-checkbox"><span class="ml-2 text-gray-700 text-sm">REDEDGE1</span></label>
+                        <label class="flex items-center px-3 py-2"><input type="checkbox" value="SWIR16" class="form-checkbox h-4 w-4 text-blue-600 band-checkbox"><span class="ml-2 text-gray-700 text-sm">SWIR16</span></label>
+                        <label class="flex items-center px-3 py-2"><input type="checkbox" value="WVP" class="form-checkbox h-4 w-4 text-blue-600 band-checkbox"><span class="ml-2 text-gray-700 text-sm">WVP</span></label>
+                        <label class="flex items-center px-3 py-2"><input type="checkbox" value="NIR08" class="form-checkbox h-4 w-4 text-blue-600 band-checkbox"><span class="ml-2 text-gray-700 text-sm">NIR08</span></label>
+                        <!-- <label class="flex items-center px-3 py-2"><input type="checkbox" value="SCL" class="form-checkbox h-4 w-4 text-blue-600 band-checkbox"><span class="ml-2 text-gray-700 text-sm">SCL</span></label> -->
+                        <label class="flex items-center px-3 py-2"><input type="checkbox" value="AOT" class="form-checkbox h-4 w-4 text-blue-600 band-checkbox"><span class="ml-2 text-gray-700 text-sm">AOT</span></label>
+        
+                        <!-- Add more options as needed -->
+                        <label class="block px-3 py-2 font-semibold text-gray-700 text-sm">Semantic Bands</label>
+                        <label class="flex items-center px-3 py-2"><input type="checkbox" value="COASTAL" class="form-checkbox h-4 w-4 text-blue-600 band-checkbox"><span class="ml-2 text-gray-700 text-sm">COASTAL</span></label>
+                        <label class="flex items-center px-3 py-2"><input type="checkbox" value="NIR09" class="form-checkbox h-4 w-4 text-blue-600 band-checkbox"><span class="ml-2 text-gray-700 text-sm">NIR09</span></label>
+                        <label class="flex items-center px-3 py-2"><input type="checkbox" value="CLOUD" class="form-checkbox h-4 w-4 text-blue-600 band-checkbox"><span class="ml-2 text-gray-700 text-sm">CLOUD</span></label>
+                        <label class="flex items-center px-3 py-2"><input type="checkbox" value="SNOW" class="form-checkbox h-4 w-4 text-blue-600 band-checkbox"><span class="ml-2 text-gray-700 text-sm">SNOW</span></label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                
+
+                <!-- Collapsible List Container -->
+                <div class="w-full bg-white rounded-lg mb-4">
+                  <div class="relative">
+                      <button id="collapsibleButton" class="w-full text-left font-medium bg-white border border-gray-200 p-2 rounded-md flex items-center justify-between">
+                        <label class="block text-sm font-medium text-gray-600">Select More Options</label> 
+                          <svg id="arrowIcon" class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                          </svg>
+                      </button>
+                      <ul id="collapsibleContent" class="hidden mt-2 bg-white border border-gray-50 rounded-md w-full">
+                          <li class="p-2 border-b border-gray-200">
+                              <label class="block text-sm font-medium text-gray-700 pb-4">Select Date</label>
+                              <div class="relative h-10 w-full min-w-[200px] mb-4">
+                                  <input id="start-date-export" class="bg-white my-dates peer h-full w-full rounded-[7px] border border-blue-gray-200 border-t-transparent bg-transparent px-3 py-2.5 font-sans text-sm font-normal text-gray-700 outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 focus:border-2 focus:border-gray-900 focus:border-t-transparent focus:outline-0 disabled:border-0 disabled:bg-blue-gray-50" placeholder=" "/>
+                                  <label class="before:content[' '] after:content[' '] pointer-events-none absolute left-0 -top-1.5 flex h-full w-full select-none !overflow-visible truncate text-[11px] font-normal leading-tight text-gray-500 transition-all before:pointer-events-none before:mt-[6.5px] before:mr-1 before:box-border before:block before:h-1.5 before:w-2.5 before:rounded-tl-md before:border-t before:border-l before:border-blue-gray-200 before:transition-all after:pointer-events-none after:mt-[6.5px] after:ml-1 after:box-border after:block after:h-1.5 after:w-2.5 after:flex-grow after:rounded-tr-md after:border-t after:border-r after:border-blue-gray-200 after:transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:leading-[3.75] peer-placeholder-shown:text-blue-gray-500 peer-placeholder-shown:before:border-transparent peer-placeholder-shown:after:border-transparent peer-focus:text-[11px] peer-focus:leading-tight peer-focus:text-gray-900 peer-focus:before:border-t-2 peer-focus:before:border-l-2 peer-focus:before:!border-gray-900 peer-focus:after:border-t-2 peer-focus:after:border-r-2 peer-focus:after:!border-gray-900 peer-disabled:text-transparent peer-disabled:before:border-transparent peer-disabled:after:border-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500">
+                                    Start Date
+                                  </label>
+                              </div>
+                              <div class="relative h-10 w-full min-w-[200px]">
+                                  <input id="end-date-export" class="bg-white my-dates peer h-full w-full rounded-[7px] border border-blue-gray-200 border-t-transparent bg-transparent px-3 py-2.5 font-sans text-sm font-normal text-gray-700 outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 focus:border-2 focus:border-gray-900 focus:border-t-transparent focus:outline-0 disabled:border-0 disabled:bg-blue-gray-50" placeholder=" "/>
+                                  <label id = "" class="before:content[' '] after:content[' '] pointer-events-none absolute left-0 -top-1.5 flex h-full w-full select-none !overflow-visible truncate text-[11px] font-normal leading-tight text-gray-500 transition-all before:pointer-events-none before:mt-[6.5px] before:mr-1 before:box-border before:block before:h-1.5 before:w-2.5 before:rounded-tl-md before:border-t before:border-l before:border-blue-gray-200 before:transition-all after:pointer-events-none after:mt-[6.5px] after:ml-1 after:box-border after:block after:h-1.5 after:w-2.5 after:flex-grow after:rounded-tr-md after:border-t after:border-r after:border-blue-gray-200 after:transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:leading-[3.75] peer-placeholder-shown:text-blue-gray-500 peer-placeholder-shown:before:border-transparent peer-placeholder-shown:after:border-transparent peer-focus:text-[11px] peer-focus:leading-tight peer-focus:text-gray-900 peer-focus:before:border-t-2 peer-focus:before:border-l-2 peer-focus:before:!border-gray-900 peer-focus:after:border-t-2 peer-focus:after:border-r-2 peer-focus:after:!border-gray-900 peer-disabled:text-transparent peer-disabled:before:border-transparent peer-disabled:after:border-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500">
+                                    End Date
+                                  </label>
+                              </div>
+                          </li>
+                          <li class="p-2 border-b border-gray-200">
+                              <label class="block text-sm/6 font-medium text-gray-700 pb-1">Select Cloud Cover <i title = "Less than the input value in percentage" class="info-icons fa-regular fa-circle-question text-gray-500 text-xs"></i></label>
+                              <div class="bg-white mt-4">
+                                  <div class="relative bg-inherit">
+                                      <input type="number" style="font-size:14px;" id="cloud-cover-export" name="" value="50" class="peer bg-transparent h-10 w-full rounded-lg text-gray-600 placeholder-transparent ring-1 px-2 ring-gray-200 focus:ring-sky-600 focus:outline-none focus:border-rose-600" placeholder="Cloud Cover"/>
+                                      <label for="" style = "font-size:12px !important;" class="absolute cursor-text left-0 -top-3 text-xs text-gray-500 bg-inherit mx-1 px-1 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 peer-placeholder-shown:top-2 peer-focus:-top-3 peer-focus:text-sky-600 peer-focus:text-xs transition-all">Cloud Cover</label>
+                                  </div>
+                              </div>
+                          </li>
+                          <!-- Additional list items can be added here -->
+                      </ul>
+                  </div>
+                </div>
+
+                <div id="analyze-filters" class="mb-4">
+                  <div class="mb-4 mt-2">
+                    <label class="block text-sm font-medium text-gray-800 pb-4">Select Output Type</label>
+                    <div class="flex items-center mb-2">
+                      <input id="operation" type="checkbox" name="option" class="output_type form-radio h-4 w-4 text-blue-600" checked>
+                      <label for="operation" class="ml-2 text-sm text-gray-600">Compute</label>
+                    </div>
+                    <div class="flex items-center">
+                      <input id="timeSeries" type="checkbox" name="option" class="output_type form-radio h-4 w-4 text-blue-600">
+                      <label for="timeSeries" class="ml-2 text-sm text-gray-600">Time Series</label>
+                    </div>
+                  </div>
+
+                  <div id="operation-container" class="w-full">
+                    <label class="block text-sm font-medium text-gray-700">Operation</label>
+                    <select id="operation_menu" style = "border:1px solid #dedede;" class="mt-1 block w-full pl-3 pr-10 py-2 text-gray-700 border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                        <!-- <option value="min" class="text-gray-600">Select Option</option> -->
+                        <option value="median" class="text-gray-600">Median</option>
+                        <option value="mean" class="text-gray-600">Mean</option>
+                        <option value="min" class="text-gray-600">Min</option>
+                        <option value="max" class="text-gray-600">Max</option>
+                        <option value="std" class="text-gray-600">Std</option>
+                        <option value="sum" class="text-gray-600">Sum</option>
+                        <option value="var" class="text-gray-600">Variance</option>
+                        <option value="mode" class="text-gray-600">Mode</option>
+                    </select>
+                </div>
+              </div>
+
+                
+                <div id = "smartFiltersContainer" class="mb-4 mt-2">
+                  <label class="block text-sm font-medium text-gray-800 pb-1">Smart Filters <i title = "if enabled chooses weekly image for frequency upto 2 months, monthly for up to 1 year , quarterly up to 3 years and semi-annually for more than 3 years. For each period it selects least cloud cover image" class="info-icons fa-regular fa-circle-question text-gray-500 text-xs"></i></label>
+                  <div class="flex items-center">
+                    <input id="smart-filters" type="checkbox" name="option" class="output_type form-radio h-4 w-4 text-blue-600">
+                    <label for="smart-filters" class="ml-2 text-sm text-gray-600">Enable Smart Filters</label>
+                  </div>
+                </div>
+
+              </div>
+              <div class="bottom-sticky-buttons sticky bottom-0 bg-white p-2 w-full flex justify-end">
+                <button id="export-clear-button" class="clear-visualize-filter bg-transparent rounded-lg text-gray-500 text-sm text-center self-center px-3 py-2 my-2 mx-2">
+                  <i class="fa-solid fa-rotate-right"></i> Clear
+                </button>
+                <button id="export-map-view-button" title="Select Filter Above to Visualize" class="bg-gray-500 pointer-events-none text-white rounded-lg text-sm text-center self-center px-3 py-2 my-2 mx-2">
+                  <i class="fa-regular fa-eye"></i> Visualize and Export
+                </button>
+                <!-- <button id="export-file-button" title="Select Filter Above to Visualize" class="hidden bg-gray-500 pointer-events-none text-white rounded-lg text-sm text-center self-center px-3 py-2 my-2 mx-2">
+                  <i class="fa-regular fa-eye"></i> Download
+                </button> -->
+              </div>              
+            </div>
+          </div>
+        </div>
+      </div>
+
+  </div>
+  <!-- message box start -->
+<div id="message-boxes" class="absolute hidden z-50  mt-2 ml-0 md:ml-[45%] md:mr-[10%]" style = "">
+  <div class="bg-transparent flex items-center justify-center">
+      <div>
+          <!-- Success Message Box -->
+          <div id="success-message" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+              <strong id = "success_and_message" class="font-bold text-xs">Success!</strong> <br/>
+              <span class="block xs:inline text-xs" id="message-cont">Your operation was completed successfully.</span>
+              <span class="absolute top-0 right-0 mt-2 mr-2 close-button-message" role="button">
+                  <svg class="fill-current h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M14.707 5.293a1 1 0 00-1.414 0L10 8.586 6.707 5.293a1 1 0 10-1.414 1.414L8.586 10l-3.293 3.293a1 1 0 001.414 1.414L10 11.414l3.293 3.293a1 1 0 001.414-1.414L11.414 10l3.293-3.293a1 1 0 000-1.414z"/></svg>
+              </span>
+          </div>
+          
+          <!-- Warning Message Box -->
+          <div id="warning-message" class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative" role="alert">
+              <strong id = "warning_error" class="font-bold text-xs">Warning!</strong><br/>
+              <span class="block xs:inline text-xs" id="warning-cont">Something might go wrong. Please check the details.</span>
+              <span class="absolute top-0 right-0 mt-1 mr-1 close-button-message" role="button">
+                  <!-- <svg class="fill-current h-6 w-6 text-yellow-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M8.257 3.099c.363-.602 1.254-.602 1.617 0L16.19 14.8c.364.601-.091 1.2-.808 1.2H4.617c-.717 0-1.172-.599-.808-1.2L8.257 3.099zM9 13h2v2H9v-2zm0-8h2v6H9V5z"/></svg> -->
+                  <svg class="fill-current h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M14.707 5.293a1 1 0 00-1.414 0L10 8.586 6.707 5.293a1 1 0 10-1.414 1.414L8.586 10l-3.293 3.293a1 1 0 001.414 1.414L10 11.414l3.293 3.293a1 1 0 001.414-1.414L11.414 10l3.293-3.293a1 1 0 000-1.414z"/></svg>
+              </span>
+          </div>
+      </div>
+  </div>
+</div>
+<!-- message box end -->
+
+
+  <div id="map" class = "w-full md:w-3/4 md:min-w-[75%] min-h-screen md:min-h-full z-0">
+  </div>
+  <div id="legend" class="legends hidden text-gray-xs"></div>
+  
+
+  <!-- filter modal start -->
+  <div id="modal" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 hidden z-40">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-full sm:w-4/5 md:w-3/5 lg:w-2/5 max-h-[80vh] relative overflow-y-auto custom-scrollbar">
+      <button id="closeModal" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700">
+          <i class="fas fa-times"></i>
+      </button>
+      <h3 class="text-xl font-semibold mb-4 text-gray-800">Finalize the formula to generate the result</h3>
+      <label class="block font-xs text-gray-500 pb-4">Click on the Bands and Operators to select them.</label>
+      
+      <!-- Section for mapping bands -->
+      <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Map Bands</label>
+          <div class="flex flex-col md:flex-row md:space-x-4">
+              <div class="w-full md:w-1/2 mb-4 md:mb-0">
+                  <label class="block text-sm font-medium text-gray-700">Band 1</label>
+                  <select id="band1" style="border:1px solid #dedede;" class="mt-1 block w-full pl-3 pr-10 py-2 text-base text-gray-700 border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md max-h-[52px] overflow-y-auto custom-scrollbar">
+                    <option value="">Select Band 1</option>
+                    <optgroup label="Bands">
+                      <option value="RED">RED</option>
+                      <option value="GREEN">GREEN</option>
+                      <option value="BLUE">BLUE</option>
+                      <option value="VISUAL">VISUAL</option>
+                      <option value="NIR">NIR</option>
+                      <option value="SWIR22">SWIR22</option>
+                      <option value="REDEDGE2">REDEDGE2</option>
+                      <option value="REDEDGE3">REDEDGE3</option>
+                      <option value="REDEDGE1">REDEDGE1</option>
+                      <option value="SWIR16">SWIR16</option>
+                      <option value="WVP">WVP</option>
+                      <option value="NIR08">NIR08</option>
+                      <option value="SCL">SCL</option>
+                      <option value="AOT">AOT</option>
+                    </optgroup>
+                    <optgroup label="Semantic Bands">
+                      <option value="COASTAL">COASTAL</option>
+                      <option value="NIR09">NIR09</option>
+                      <option value="CLOUD">CLOUD</option>
+                      <option value="SNOW">SNOW</option>
+                    </optgroup>
+                  </select>                  
+              </div>
+              <div class="w-full md:w-1/2">
+                  <label class="block text-sm font-medium text-gray-700">Band 2</label>
+                  <select id="band2" style="border:1px solid #dedede;" class="mt-1 block w-full pl-3 pr-10 py-2 text-base text-gray-700 border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                    <option value="">Select Band 1</option>
+                    <optgroup label="Bands">
+                      <option value="RED">RED</option>
+                      <option value="GREEN">GREEN</option>
+                      <option value="BLUE">BLUE</option>
+                      <option value="VISUAL">VISUAL</option>
+                      <option value="NIR">NIR</option>
+                      <option value="SWIR22">SWIR22</option>
+                      <option value="REDEDGE2">REDEDGE2</option>
+                      <option value="REDEDGE3">REDEDGE3</option>
+                      <option value="REDEDGE1">REDEDGE1</option>
+                      <option value="SWIR16">SWIR16</option>
+                      <option value="WVP">WVP</option>
+                      <option value="NIR08">NIR08</option>
+                      <option value="SCL">SCL</option>
+                      <option value="AOT">AOT</option>
+                    </optgroup>
+                    <optgroup label="Semantic Bands">
+                      <option value="COASTAL">COASTAL</option>
+                      <option value="NIR09">NIR09</option>
+                      <option value="CLOUD">CLOUD</option>
+                      <option value="SNOW">SNOW</option>
+                    </optgroup>
+                  </select>
+                  
+              </div>
+          </div>
+      </div>
+  
+      <!-- Initially hidden section -->
+      <div id="bandsSection">
+          <div class="mb-4 flex flex-col md:flex-row md:space-x-4">
+              <div class="w-full md:w-1/2 mb-4 md:mb-0">
+                  <label class="block text-sm font-medium text-gray-700">Bands</label>
+                  <div class="mt-1 border border-gray-300 rounded-md p-2 min-h-40 max-h-40 overflow-auto custom-scrollbar" id="attributes-list">
+                      <ul class="cursor-pointer text-gray-500 text-sm uppercase" id="mapped-bands">
+                          <!-- Mapped bands will be appended here -->
+                      </ul>
+                  </div>
+              </div>
+              <div class="w-full md:w-1/2">
+                  <label class="block text-sm font-medium text-gray-700">Operators</label>
+                  <div class="grid grid-cols-5 gap-2 mt-1 text-gray-500 text-sm" id="operators-list">
+                      <button class="operator-item bg-gray-200 rounded-md p-2">7</button>
+                      <button class="operator-item bg-gray-200 rounded-md p-2">8</button>
+                      <button class="operator-item bg-gray-200 rounded-md p-2">9</button>
+                      <button class="operator-item bg-gray-200 rounded-md p-2">(</button>
+                      <button class="operator-item bg-gray-200 rounded-md p-2">)</button>
+                      <button class="operator-item bg-gray-200 rounded-md p-2">4</button>
+                      <button class="operator-item bg-gray-200 rounded-md p-2">5</button>
+                      <button class="operator-item bg-gray-200 rounded-md p-2">6</button>
+                      <button class="operator-item bg-gray-200 rounded-md p-2">+</button>
+                      <button class="operator-item bg-gray-200 rounded-md p-2">-</button>
+                      <button class="operator-item bg-gray-200 rounded-md p-2">1</button>
+                      <button class="operator-item bg-gray-200 rounded-md p-2">2</button>
+                      <button class="operator-item bg-gray-200 rounded-md p-2">3</button>
+                      <button class="operator-item bg-gray-200 rounded-md p-2">*</button>
+                      <button class="operator-item bg-gray-200 rounded-md p-2">/</button>
+                      <button class="operator-item bg-gray-200 rounded-md p-2">0</button>
+                      <button class="operator-item bg-gray-200 rounded-md p-2">.</button>
+                      <button class="operator-item bg-gray-200 rounded-md p-2">PI(P)</button>
+                      <button class="operator-item bg-gray-200 rounded-md p-2">e</button>
+                      <button class="operator-item bg-gray-200 rounded-md p-2">^</button>
+                  </div>
+              </div>
+          </div>
+          
+          <div class="mb-4">
+              <label for="query" class="block text-sm font-medium text-gray-700">Query</label>
+              <textarea id="query" rows="3" class="mt-1 p-2 text-gray-800 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
+          </div>
+          <div class="flex justify-between float-right">
+              <button id="resetButton" class="text-gray-500 mr-2"><i class="fa-solid fa-rotate-right"></i> Reset</button>  
+              <button id="saveFormula" class="bg-blue-500 text-white rounded-md px-4 py-2">Save</button>
+          </div>
+      </div>
+  </div>
+  
+  </div>
+  <!-- filter modal end -->
+
+  <!-- upload modal start -->
+  <div id="uploadModal" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 hidden z-40">
+    <div class="bg-white rounded-lg shadow-md p-6 w-full sm:w-4/5 md:w-3/5 lg:w-2/5 max-h-[80vh] relative overflow-y-auto custom-scrollbar">
+        <h2 class="text-2xl font-semibold mb-4">Upload or Paste GeoJSON File</h2>
+        
+        <!-- Drag and Drop or Upload Section -->
+        <div class="upload-area border-2 border-dashed border-gray-300 rounded-lg p-4 text-center mb-4" id="upload-area">
+            <p class="mb-2">Drag & Drop GeoJSON File Here <br/><label>or</label><br/><br/> <input type="file" id="file-input" class="hidden" /><label for="file-input" class="upload-button bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer">Browse Files</label></p>
+        </div>
+        
+        <!-- Copy and Paste Section -->
+        <div class="textarea-container border-2 border-dashed border-gray-300 rounded-lg p-4">
+            <p class="mb-2">Copy and Paste GeoJSON Content Here:</p>
+            <textarea id="geojson-textarea" class="w-full h-48 border-none focus:outline-none resize-none" placeholder="Paste GeoJSON content..."></textarea>
+        </div>
+
+        <!-- Close Button -->
+        <div class="text-right mt-4">
+            <button id="closeModalButton" class="bg-red-500 text-white px-4 py-2 rounded-md">Close</button>
+            <button id="saveUploadedData" class="bg-blue-500 text-white rounded-md px-4 py-2">Save</button>
+        </div>
+    </div>
+</div>
+   <!-- upload modal end -->
+
+
+   <!-- Result and timeslider modal start -->
+   <div id="timeSliderModal" class="modal hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-40">
+    <div class="modal-content bg-white p-4 rounded-md w-full sm:w-4/5 md:w-3/5 lg:w-2/5 max-h-[80vh] relative overflow-y-auto custom-scrollbar">
+      <span class="close text-gray-500 hover:text-gray-700 float-right text-2xl cursor-pointer">&times;</span>
+      <h2 class="text-lg font-semibold mb-4">View Result</h2>
+      <div class="tabs mb-4" id="tabs">
+        <button id="operationTabButton" class="tab-button active bg-blue-500 text-white py-2 px-2 text-sm rounded-tl-lg">Operation Result</button>
+        <button id="timeSeriesTabButton" class="tab-button bg-gray-200 text-blue-500 py-2 px-2 text-sm rounded-tr-lg">Time Series Result</button>
+        <button id="timeSeriesTrendTabButton" class="tab-button bg-gray-200 text-blue-500 py-2 px-2 text-sm rounded-tr-lg">Time Series Trend</button>
+      </div>
+      <div id="operationContainer" class="hidden"  style="min-height: 500px;">
+        <div id="imageContainer" class="mb-4">
+          <img id="operationImageView" class="w-full rounded-md" src="images/image_2022-01-01.jpg" alt="Image">
+        </div>
+        <div id="operationDateDisplay" class="text-center text-sm text-gray-700 mb-4">Start Date</div>
+      </div>
+      <div id="timeSeriesContainer" class="hidden" style="min-height: 500px;">
+        <div id="timeSeriesImageContainer" class="mb-4">
+          
+        </div>
+        <div id="dateDisplay" class="text-center text-sm text-gray-700 mb-4">Start Date</div>
+        <div class="flex items-center mb-4">
+          <button id="playPauseButton" class="text-gray-500 hover:text-gray-700 mr-2">
+            <i class="fas fa-play" id="playIcon"></i>
+            <i class="fas fa-pause hidden" id="pauseIcon"></i>
+          </button>
+          <input type="range" id="dateRangeSlider" class="slider w-full" min="0" max="100" value="0">
+        </div>
+        <div class="slider-markers flex justify-between text-sm text-gray-700">
+          <!-- Markers will be generated dynamically -->
+        </div>
+      </div>
+      <div id="timeSeriesTrendContainer" class="hidden"  style="min-height: 500px;">
+        <div id="trendImageContainer" class="mb-4">
+          <img id="trendImageView" class="w-full rounded-md" src="images/image_2022-01-01.jpg" alt="Image">
+        </div>
+      
+      </div>
+    </div>
+  </div>
+   <!-- Result and timeslider modal end -->
+
+</div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+    <script src="https://unpkg.com/georaster"></script>
+    <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
+    <script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
+
+    <!-- custom js -->
+    <script src="../static/js/main.js"></script>
+    <script src="../static/js/map.js"></script>
+    <script src="../static/js/filters.js"></script>
+    <script src="../static/js/draw.js"></script>
+    <script src="../static/js/layerswitcher.js"></script>
+
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="../static/js/colorpalette.js"></script>
+    <script src="../static/js/message_warning.js"></script>
+
+
+    
+
+ <!-- timeseries definition and clear -->
+ <script>
+  let isPlaying = false;
+      let playInterval;
+      let pngImages = [];
+      let dates = [];
+      let loadedImages = [];
+
+      function clearPreviousTimeSeriesData() { 
+        pngImages = []; 
+        dates = []; 
+        loadedImages = []; 
+        // Clear loaded images 
+        document.getElementById('timeSeriesImageContainer').innerHTML = ''; 
+        document.getElementById('dateDisplay').textContent = ''; 
+      }
+  </script>
+
+  <script src="../static/js/export_download.js"></script>
+
+
+  <!-- custom js end -->
+   
+  <!-- operation script start  -->
+     
+    <script>
+      document.addEventListener('DOMContentLoaded', (event) => {
+      document.querySelectorAll('.output_type').forEach((checkbox) => {
+        checkbox.addEventListener('click', function(event){
+          // const radioId = event.target.id;
+          // for export time series checkbox
+          var checkedStatusOperation = document.getElementById("operation").checked;
+          var checkedStatustimeSeries = document.getElementById("timeSeries").checked;
+
+          if(checkedStatusOperation){
+            document.getElementById("operation-container").classList.remove("hidden");
+            export_params.operation = document.getElementById("operation_menu").value;
+          }
+          else{
+            export_params.operation = "none";
+            document.getElementById("operation-container").classList.add("hidden");
+          }
+
+          if(checkedStatustimeSeries){
+            export_params.timeseries = "true";
+          }
+          else{
+            export_params.timeseries = "false";
+          }
+
+          //for search timeseries checkbox
+          var checkedStatustimeSeries_search = document.getElementById("timeSeries_search").checked;
+
+          if(checkedStatustimeSeries_search){
+            document.getElementById("operation-container_search").classList.remove("hidden");
+            tile_params.timeseries = "true";
+          }
+          else{
+            tile_params.operation = "none";
+            tile_params.timeseries = "false";
+            document.getElementById("operation-container_search").classList.add("hidden");
+          }
+      
+        });
+      });
+    });
+      
+      document.getElementById("operation_menu").addEventListener('change', function() {
+        export_params.operation = this.value;
+      });
+
+      document.getElementById("operation_menu_search").addEventListener('change', function() {
+        tile_params.operation = this.value;
+      });
+    </script>
+    <!-- operation script end -->
+    
+    <!-- smart filters script start -->
+    <script>
+      document.getElementById("smart-filters").addEventListener('change', function() {
+        
+        var checkedSmartFilter = document.getElementById("smart-filters").checked;
+        
+        if(checkedSmartFilter){
+          export_params.smart_filters = "true";
+        }
+        else{
+          export_params.smart_filters = "false";
+        }
+        // console.log(export_params.smart_filters);
+      })
+    </script>
+    <!-- smart filters script end -->
+
+    <!-- upload modal script start -->
+    <script>
+      const uploadArea = document.getElementById('upload-area');
+      const fileInput = document.getElementById('file-input');
+      const textarea = document.getElementById('geojson-textarea');
+      const openModalButton = document.getElementById('upload-file-bbox');
+      const closeModalButton = document.getElementById('closeModalButton');
+      const uploadModal = document.getElementById('uploadModal');
+      
+      // Open modal
+      openModalButton.addEventListener('click', function() {
+          uploadModal.classList.remove('hidden');
+      });
+  
+      // Close modal
+      closeModalButton.addEventListener('click', function() {
+          uploadModal.classList.add('hidden');
+      });
+  
+      // Handle drag and drop
+      uploadArea.addEventListener('dragover', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          uploadArea.classList.add('dragover');
+      });
+  
+      uploadArea.addEventListener('dragleave', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          uploadArea.classList.remove('dragover');
+      });
+  
+      uploadArea.addEventListener('drop', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          uploadArea.classList.remove('dragover');
+          const files = e.dataTransfer.files;
+          handleFileUpload(files[0]);
+      });
+  
+      // Handle file input change
+      fileInput.addEventListener('change', function(e) {
+          const files = e.target.files;
+          handleFileUpload(files[0]);
+      });
+  
+      // Function to handle file upload
+      function handleFileUpload(file) {
+          const reader = new FileReader();
+          reader.onload = function(event) {
+              textarea.value = event.target.result;
+          };
+          reader.readAsText(file);
+      }
+    </script>
+
+    <!-- upload modal script end -->
+
+    <script>
+      const collapsibleButton = document.getElementById('collapsibleButton');
+      const collapsibleContent = document.getElementById('collapsibleContent');
+      const arrowIcon = document.getElementById('arrowIcon');
+  
+      // Toggle collapsible content visibility
+      collapsibleButton.addEventListener('click', function() {
+          collapsibleContent.classList.toggle('hidden');
+          arrowIcon.classList.toggle('rotate-180'); // Rotate the arrow icon
+      });
+  </script>
+
+    <!-- JavaScript to handle modal and populate textarea -->
+    <script>
+      
+     document.addEventListener('DOMContentLoaded', function() {
+        const openModalButton1 = document.getElementById('custom-filter_search');
+        const openModalButton2 = document.getElementById('custom-filter_export');
+        const closeModalButton = document.getElementById('closeModal');
+        const modal = document.getElementById('modal');
+        const queryTextarea = document.getElementById('query');
+        const resetButton = document.getElementById('resetButton');
+        const saveFormulaButton = document.getElementById('saveFormula');
+
+        // Function to toggle modal visibility
+        function toggleModal() {
+            modal.classList.toggle('hidden');
+        }
+
+        // Event listeners to open and close the modal
+        openModalButton1.addEventListener('click', toggleModal);
+        openModalButton2.addEventListener('click', toggleModal);
+        closeModalButton.addEventListener('click', toggleModal);
+
+        // Function to append text to the textarea
+        function appendToQuery(text) {
+            queryTextarea.value += text + ' ';
+        }
+
+        // Add click event listeners to attributes list items
+        document.getElementById('attributes-list').addEventListener('click', function(event) { 
+          if (event.target && event.target.classList.contains('attribute-item')) { 
+            var separated_band_text = event.target.textContent.split(" ")[0];
+            appendToQuery(separated_band_text); 
+          } 
+        });
+
+        // Add click event listeners to operators list items
+        document.querySelectorAll('#operators-list .operator-item').forEach(function(item) {
+            item.addEventListener('click', function() {
+                appendToQuery(item.textContent);
+            });
+        });
+
+        // Event listener to reset the textarea
+        resetButton.addEventListener('click', function() {
+            queryTextarea.value = '';  // Clears the content of the textarea
+        });
+
+        saveFormulaButton.addEventListener('click', function() {
+            tile_params.formula = queryTextarea.value.toLowerCase(); 
+            export_params.formula = queryTextarea.value.toLowerCase(); //setting the same formula for now (for search and export)
+
+            // console.log('formula:', tile_params.formula);
+            document.getElementById("formulaHeading").classList.remove('hidden'); 
+            document.getElementById("formulaHeading-export").classList.remove('hidden'); 
+            document.getElementById("custom-formula-view_export").classList.remove('hidden');
+            document.getElementById("formulaText").innerHTML = tile_params.formula;
+            document.getElementById("formula-text-export").innerHTML = export_params.formula; 
+            closeModalButton.click();
+        });
+
+        // // open formula modal from export section
+        // document.getElementById("setFormula-export").addEventListener('click', function() {
+        //   document.getElementById("custom-filter_search").click();
+        // });
+    });
+
+
+
+  </script>
+
+  <!-- datepicker start -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Select all elements with the class "my-dates"
+      const dateInputs = document.querySelectorAll('.my-dates');
+  
+      // Initialize Flatpickr for each date input
+      dateInputs.forEach(input => {
+        const datepicker = flatpickr(input, {
+          onReady: function(selectedDates, dateStr, instance) {
+            // console.log("datepicker: ", instance);
+            
+            // Styling the date picker
+            const calendarContainer = instance.calendarContainer;
+            const calendarMonthNav = instance.monthNav;
+            const calendarNextMonthNav = instance.nextMonthNav;
+            const calendarPrevMonthNav = instance.prevMonthNav;
+            const calendarDaysContainer = instance.daysContainer;
+            
+            if (calendarContainer) {
+              calendarContainer.className = `${calendarContainer.className} bg-white p-4 border border-blue-gray-50 rounded-lg shadow-lg shadow-blue-gray-500/10 font-sans text-sm font-normal text-blue-gray-500 focus:outline-none break-words whitespace-normal`;
+            }
+            
+            if (calendarMonthNav) {
+              calendarMonthNav.className = `${calendarMonthNav.className} flex items-center justify-between mb-4 [&>div.flatpickr-month]:-translate-y-3`;
+            }
+            
+            if (calendarNextMonthNav) {
+              calendarNextMonthNav.className = `${calendarNextMonthNav.className} absolute !top-2.5 !right-1.5 h-6 w-6 bg-transparent hover:bg-blue-gray-50 !p-1 rounded-md transition-colors duration-300`;
+            }
+            
+            if (calendarPrevMonthNav) {
+              calendarPrevMonthNav.className = `${calendarPrevMonthNav.className} absolute !top-2.5 !left-1.5 h-6 w-6 bg-transparent hover:bg-blue-gray-50 !p-1 rounded-md transition-colors duration-300`;
+            }
+            
+            if (calendarDaysContainer) {
+              calendarDaysContainer.className = `${calendarDaysContainer.className} [&_span.flatpickr-day]:!rounded-md [&_span.flatpickr-day.selected]:!bg-gray-900 [&_span.flatpickr-day.selected]:!border-gray-900`;
+            }
+          }
+        });
+      });
+    });
+</script>
+
+
+  <!-- computation progress code start -->
+   <script>
+    // Function to start a new computation and update progress
+    function startProgressComputation(name, progress) {
+      // Update progress based on fetched data
+      const progressBar = document.getElementById(`${name}_progress`);
+      const progressBarContainer = document.getElementById(`${name}_progressbar`);
+
+      progressBar.style.width = progress + '%';
+      document.getElementById(`${name}_progress_text`).textContent = `${Math.floor(progress)}%`;
+
+      // Hide progress bar if complete
+      if (progress >= 100) {
+        setTimeout(() => {
+          if (progressBarContainer) {
+            progressBarContainer.style.display = 'none';
+            document.getElementById("after-compute-buttons").classList.remove("hidden");
+          }
+        }, 1000);
+      } else {
+        // Ensure progress bar is visible if not complete
+        if (progressBarContainer) {
+          progressBarContainer.style.display = 'block';
+        }
+      }
+    }
+
+    function displayNoImageFoundMessage() {
+      const progressBarContainer = document.getElementById('compute_progressbar');
+      const progressText = document.getElementById('compute_progress_text');
+      document.getElementById("ProgressTextsBefore").innerHTML = "";
+      
+      progressText.style.removeProperty('font-size');
+      progressText.textContent = 'No image found/ try smaller AOI';
+      progressText.style.fontSize = "10px !important";
+      progressText.style.color = 'red';
+      progressBarContainer.style.display = 'block';
+    }
+
+  </script>
+  <!-- computation progress code end -->
+  
+  <!-- export tab script -->
+  <script>
+    document.getElementById("map-window-content").innerHTML = document.getElementById("coords").textContent;
+  </script>
+  <!-- export tab script end -->
+   
+  <!-- datepicker end -->
+
+  <script src="../static/js/resultmodal_timeslider.js"></script>
+
+  <!-- download file script -->
+  <script>
+      document.addEventListener('DOMContentLoaded', (event) => {
+        // Add click event listener for the download icon
+        document.getElementById('download-result-image').addEventListener('click', downloadResult);
+        document.getElementById('download-band-image').addEventListener('click', function(){
+          console.log("entered");
+          const uid = localStorage.getItem('UID');
+
+          downloadFile('static/export/'+uid+'/tiff_files.zip');
+          trackRawDataDownload('static/export/'+uid+'/tiff_files.zip');
+        });
+      });
+
+      function downloadResult() {
+        const analyzeChecked = document.getElementById('analyze-data').checked;
+        const uid = localStorage.getItem('UID');
+
+        if(!analyzeChecked){ //if download checked
+          downloadFile('static/export/'+uid+'/tiff_files.zip');
+          trackTimeSeriesDownload('static/export/'+uid+'/tiff_files.zip'); //google analytics tracking
+        }
+        else{
+          const operationChecked = document.getElementById('operation').checked;
+          const timeSeriesChecked = document.getElementById('timeSeries').checked;
+          
+          if (operationChecked && !timeSeriesChecked) {
+            // Download .tif file for operation
+            // window.location.href = 'static/export/'+uid+'/custom_band_output_aggregate.tif';
+            downloadFile('static/export/'+uid+'/custom_band_output_aggregate.tif');
+            trackResultDownload('static/export/'+uid+'/custom_band_output_aggregate.tif');//google analytics tracking
+          } else if (timeSeriesChecked && !operationChecked) {
+            // Download .zip file for time series
+            // window.location.href = 'static/export/'+uid+'/tiff_files.zip';
+            downloadFile('static/export/'+uid+'/tiff_files.zip');
+          } else if (operationChecked && timeSeriesChecked) {
+            // Download both files
+            downloadFile('static/export/'+uid+'/custom_band_output_aggregate.tif');
+            downloadFile('static/export/'+uid+'/tiff_files.zip');
+
+            trackResultDownload('static/export/'+uid+'/custom_band_output_aggregate.tif');
+            trackTimeSeriesDownload('static/export/'+uid+'/tiff_files.zip');
+          }
+
+        }
+      }
+
+      function downloadFile(filePath) {
+        const link = document.createElement('a');
+        link.href = filePath;
+        link.target = '_blank';
+        link.download = filePath.split('/').pop();
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
+  </script>
+  <!-- download file script end -->
+
+
+  <!-- multiselect checkbox start -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const dropdownButton = document.getElementById('dropdownButtonBands');
+    const dropdownMenu = document.getElementById('dropdownMenuBands');
+
+    dropdownButton.addEventListener('click', function() {
+        dropdownMenu.classList.toggle('hidden');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+            dropdownMenu.classList.add('hidden');
+        }
+    });
+
+    // Update button text with selected options
+    const checkboxes = dropdownMenu.querySelectorAll('.band-checkbox');
+    checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            const selectedOptions = Array.from(checkboxes).filter(chk => chk.checked).map(chk => chk.value);
+            // console.log(selectedOptions);
+            dropdownButton.innerHTML = selectedOptions.length > 0 ? selectedOptions.join(', ') : `<img src="static/img/select-icon.png" alt="" class="size-5 shrink-0 rounded-full mr-2">Select Bands`;
+            
+
+            if (selectedOptions.includes("VISUAL")) {
+                // Remove "visual"
+                var updatedOptions = selectedOptions.filter(opt => opt !== "VISUAL");
+
+                // Ensure "red", "green", and "blue" are included (avoid duplicates)
+                const rgbBands = ["RED", "GREEN", "BLUE"];
+                rgbBands.forEach(band => {
+                    if (!updatedOptions.includes(band)) {
+                        updatedOptions.push(band);
+                    }
+                });
+
+                // Update selectedOptions
+                selectedOptions.length = 0; // Clear original array
+                selectedOptions.push(...updatedOptions);
+            }
+            export_params.bands_list = selectedOptions.length > 0 ? selectedOptions.join(',').toLowerCase() : "";
+
+            document.getElementById("export-map-view-button").classList.remove('bg-gray-500', 'pointer-events-none');
+            document.getElementById("export-map-view-button").classList.add('bg-blue-700');
+        });
+    });
+});
+
+
+  </script>
+
+
+<script>
+  document.getElementById('nav-toggle').addEventListener('click', () => {
+    const navContentMobile = document.getElementById('nav-content-mobile');
+    navContentMobile.classList.toggle('hidden');
+  });
+</script>
+
+  </body>
+</html>

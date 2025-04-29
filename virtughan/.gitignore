@@ -1,0 +1,12 @@
+env
+__pycache__
+*.tif
+images
+node_modules
+venv
+/static/export/
+# *.png
+*.gif
+*.zip
+*.log
+# *.ipynb
