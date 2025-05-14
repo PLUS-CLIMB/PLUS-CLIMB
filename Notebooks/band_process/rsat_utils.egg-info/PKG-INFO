@@ -1,0 +1,13 @@
+Metadata-Version: 2.4
+Name: rsat_utils
+Version: 0.1.0
+Summary: Remote sensing utilities for loading bands, computing indices, and plotting.
+Author: Khizer Zakir
+Keywords: remote sensing raster landsat ndvi rasterio
+Requires-Dist: rasterio
+Requires-Dist: matplotlib
+Requires-Dist: numpy
+Dynamic: author
+Dynamic: keywords
+Dynamic: requires-dist
+Dynamic: summary

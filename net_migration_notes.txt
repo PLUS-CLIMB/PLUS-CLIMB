@@ -1,0 +1,44 @@
+---
+## 🧾 What Does "Observation" Mean?
+
+An **observation** is **one data point** in their dataset, typically for:
+
+* **One country**
+* **One time interval (5 years)**
+* **One area type (city, rural, town)**
+
+For example:
+
+* The rate of natural change in rural **India** from **1980–1985** = **1 observation**
+
+---
+
+The number of **country-level observations** is higher than the number of **city** or **rural** observations in Table 1 because:
+
+### 🔹 1. **Data Availability**
+
+* **Country-level data** on the rate of natural change is more **complete** and **readily available** from sources like the UN World Population Prospects (WPP).
+* In contrast, **city and rural area-specific data** are much **less frequently reported** in the Demographic Yearbooks (DYB), meaning they exist for **fewer countries and years**.
+
+> For example, the table reports:
+>
+> * **2,360** country-level observations
+> * Only **410** for cities and **408** for rural areas (based on raw DYB data)
+
+This suggests that the **vast majority of countries do not disaggregate** their birth and death rates by urban/rural categories in these public datasets.
+
+---
+
+### 🔹 2. **Every Country-Year Pair Contributes to Country-Level, But Not Always to City/Rural**
+
+* A "country-level observation" is counted for **each country in each five-year interval** for which national data is available.
+* But only a **subset** of those intervals will have **subnational (city/rural) data**, so city/rural observations are **fewer**.
+
+---
+
+### 🔹 3. **Imputation Fills Gaps Later, But Not in This Count**
+
+* The **"imputed" values** for cities and rural areas (shown in the lower panel of the table) are **estimates**, not directly observed data.
+* Only the **directly collected data** are counted in the top section. So the **raw observation count is lower** for subnational areas.
+
+---
