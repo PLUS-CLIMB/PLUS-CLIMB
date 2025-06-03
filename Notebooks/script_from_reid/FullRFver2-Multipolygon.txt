@@ -1,0 +1,319 @@
+/*Hi!
+If you are reading this, then you are arleady INOCLAP. INOCLAP?, you ask. In Need of a Classification Product! Not very funny? Sorry. Better next time.
+Also, if you're reading this after trying to run it and running into walls, haha...you thought you were special, didn't ya? lolestest! May you run into easier code next time!
+
+Anyways.... this code will help you classify a single sentinel-2 image based on ESA's LCC scheme. Too many acronyms? Sorry. We're lazy. Too much typing. Just google that
+This was developed in the GEOHUM lab @ Z_GIS in PLUS to be used to classify sentinel-2 imagery then download the classified product.
+The code looks quite neat because we're horrible coders (don't doubt) and also AI helped us to arrange and tie things in a bow.
+Each step is explained as clearly as we could but these are some general pointers for you;
+- Feel free to tweak with the cloud threshold, dates, sample points, trees, scale as you please. Just please read the comment on each parameter before going all Jack Sparrow
+- A very good overall accuracy at training would be about 0.7. Don't try for 0.9, you probably won't get it. Don't settle for 0.5, it is not good enough
+- We also suggest that you load your AOI asset into the code before you run the code. But you're free to discover the alternative. It is a good thing that you aptly name it too.
+- If you have cloud in your image, it will be misclassified because the cloud mask isn't applied to the image before classification. But you can add it. Couple of lines of code
+- This code can allow you to draw several different polygons to choose training areas. Draw as many as you can and then hit "Add Polygon to Training AoI" then "Confirm Training AoI Selection"
+
+If you're really stuck and need to ask for help. In this order of preferance try: Batman, Chuck Norris, Macgyver, Google, AI and very much in the last place, contact someone in the Christian Doppler Lab at Z_GIS called Sophia.
+If she can't help you, its not her or you or the code... its the air or gravity or possibly... global warming.
+This code will generally work as it should but surprises make life fun, no? So don't fright if some come up. Enjoy!
+Lots of love,
+RMT
+*/
+
+// Global variable to hold the selected image and image date
+var img;  // Define globally so it can be accessed later
+var imgDate;  // To store the image date for dynamic naming
+
+// Define the date range for filtering the ImageCollection.
+var startDate = '2024-08-01';
+var endDate = '2024-08-30';
+
+// Create a buffered point or a rectangular region as your AoI. This is to help find images
+// Example: Buffer a point to a 5 km radius around the new coordinates in Madagascar.
+var point = ee.Geometry.Point([21.6, 12.0]);
+var bufferedPoint = point.buffer(5000);  // 5 km buffer
+
+// Load the Sentinel-2 Surface Reflectance ImageCollection and format image dates.
+var s2Collection = ee.ImageCollection('COPERNICUS/S2_SR')
+  .filterDate(startDate, endDate)
+  .filterBounds(bufferedPoint)  // Use the buffered point or rectangle here
+  .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 80))  // Set a reasonable cloud cover percentage
+  .map(function(image) {
+    var date = ee.Date(image.get('system:time_start')).format('YYYYMMdd');
+    return image.set('formatted_date', date);  // Set a formatted date property for display
+  });
+
+// Retrieve the list of image IDs and formatted dates from the ImageCollection.
+var imageIds = s2Collection.aggregate_array('system:index').getInfo();  // Get list of image IDs
+var imageDates = s2Collection.aggregate_array('formatted_date').getInfo();  // Get list of formatted dates
+
+// Create a panel to hold the UI widgets
+var uiPanel = ui.Panel({
+  style: {width: '300px'}
+});
+ui.root.add(uiPanel);  // Add the panel to the UI
+
+// Create a dropdown menu for users to select an image from the collection.
+var imageSelect = ui.Select({
+  items: imageIds.map(function(id, index) {
+    var date = imageDates[index];
+    return {label: id + ' (' + date + ')', value: id};  // Show ID and formatted date in dropdown
+  }),
+  onChange: function(value) {
+    // Load the selected image.
+    img = ee.Image('COPERNICUS/S2_SR/' + value);  // Assign to global variable img
+
+    // Retrieve the image acquisition date
+    imgDate = ee.Date(img.get('system:time_start')).format('YYYYMMdd').getInfo();  // Properly format the image date
+
+    // Display the selected image on the map.
+    Map.layers().reset();
+    Map.centerObject(img, 10);
+    Map.addLayer(img, {bands: ['B4', 'B3', 'B2'], min: 100, max: 3000}, 'Selected Image');
+
+    // Further processing after selecting the image.
+    defineTrainingArea();
+  }
+});
+
+// Add the dropdown to the UI panel
+uiPanel.add(ui.Label('Select a Sentinel-2 Image:'));
+uiPanel.add(imageSelect);
+
+// Function to define the training AoI by drawing multiple polygons interactively and show confusion matrix
+function defineTrainingArea() {
+  // Clear existing UI widgets from the panel
+  uiPanel.clear();
+
+  // Set up the map to allow interactive drawing of multiple polygons for the training AoI.
+  var drawingTools = Map.drawingTools();
+  drawingTools.setShown(true);  // Show drawing tools
+
+  // Clear previous layers and set drawing mode to draw polygons.
+  drawingTools.layers().forEach(function (layer) {
+    drawingTools.layers().remove(layer);
+  });
+  drawingTools.setShape('polygon');  // Set shape to polygon
+
+  // Create a FeatureCollection to store multiple drawn polygons.
+  var drawnPolygons = ee.FeatureCollection([]);
+
+  // Function to handle the drawing of each polygon.
+  var addPolygon = function() {
+    var layer = drawingTools.layers().get(0);  // Get the drawn layer
+    if (layer) {
+      var polygon = ee.Feature(layer.getEeObject());  // Cast to ee.Feature
+      drawnPolygons = drawnPolygons.merge(ee.FeatureCollection([polygon]));  // Add the polygon to the collection
+    }
+    drawingTools.layers().remove(layer);  // Clear the current drawing
+  };
+
+  // Create a button to add each drawn polygon to the collection.
+  var addButton = ui.Button({
+    label: 'Add Polygon to Training AoI',
+    onClick: addPolygon
+  });
+
+  // Create a button to confirm the selection of all drawn polygons.
+  var confirmButton = ui.Button({
+    label: 'Confirm Training AoI Selection',
+    onClick: function() {
+      // Ensure that at least one polygon is drawn.
+      if (drawnPolygons.size().getInfo() > 0) {
+        var trainingAoI = drawnPolygons.geometry();  // Combine polygons into one geometry
+        print('Selected Training AoI:', trainingAoI);
+
+        // Proceed with training and classification.
+        classifyAndExport(trainingAoI);
+      } else {
+        print('No AoI selected. Please draw at least one polygon on the map.');
+      }
+    }
+  });
+
+  // Add the buttons to the UI panel
+  uiPanel.add(ui.Label('Draw multiple polygons for the Training Area (AoI) on the Map:'));
+  uiPanel.add(addButton);
+  uiPanel.add(confirmButton);
+}
+
+// Function to classify and export based on the selected AoI.
+function classifyAndExport(trainingAoI) {
+  // Clip the image to the selected AoI.
+  var imgClipped = img.clip(trainingAoI);
+
+// Add another classification scheme to aid in training. Preferrably Urban footprint. Not yet done
+// Add cloud exclusion from ESA
+
+  // Load ESA WorldCover land cover map.
+  var lc = ee.Image('ESA/WorldCover/v100/2020');
+  var classValues = [10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 100];
+  var remapValues = ee.List.sequence(0, 10);
+  var label = 'lc';
+  lc = lc.remap(classValues, remapValues).rename(label).toByte();
+
+  // Clip the land cover image to the AoI (no reprojection).
+  var lcClipped = lc.clip(trainingAoI);
+
+  // Combine the clipped images.
+  var combined = imgClipped.addBands(lcClipped);
+
+  // Stratified sampling to balance classes. Keep scale at 10 unnless the study area is really huge then it could be a less computationaly intensive to use 30
+  // numpoints refers to sampled points. keep them to about 150m
+  var sample = combined.stratifiedSample({
+    numPoints: 100,
+    classBand: label,
+    region: trainingAoI,
+    scale: 10,
+    geometries: true
+  });
+
+  // Split into training and validation sets.
+  sample = sample.randomColumn();
+  var trainingSample = sample.filter('random <= 0.8');
+  var validationSample = sample.filter('random > 0.8');
+
+  // Train the Random Forest classifier. Default trees are set to 50. You can adjust these upto 70. That is a decent threshold. But don't take a our word for it, go bananas!
+  var trainedClassifier = ee.Classifier.smileRandomForest(50).train({
+    features: trainingSample,
+    classProperty: label,
+    inputProperties: img.bandNames()
+  });
+
+// Apply the trained classifier to the validation sample.
+var validation = validationSample.classify(trainedClassifier);
+
+// Generate the confusion matrix.
+var confusionMatrix = validation.errorMatrix({
+  actual: 'lc',  // The actual class property from the validation data
+  predicted: 'classification'  // The predicted class from the classifier
+});
+
+// Print the confusion matrix to the console.
+print('Confusion Matrix:', confusionMatrix);
+print('Overall Accuracy:', confusionMatrix.accuracy());
+
+
+  // Apply the trained classifier to the selected AoI.
+  var classifiedAoI = img.classify(trainedClassifier).clip(trainingAoI);
+
+  // Visualization parameters for the classified image.
+  var classVis = {
+    min: 0,
+    max: 10,
+    palette: ['006400' ,'ffbb22', 'ffff4c', 'f096ff', 'fa0000', 'b4b4b4', 'f0f0f0', '0064c8', '0096a0', '00cf75', 'fae6a0']
+  };
+
+  // Add the classified AoI to the map.
+  Map.addLayer(classifiedAoI, classVis, 'Classified AoI');
+  Map.centerObject(trainingAoI, 10);  // Center the map on the AoI
+
+  // Now proceed to define the larger area for classification.
+  defineLargerArea(trainedClassifier);
+}
+
+// Function to define the larger classification area.
+function defineLargerArea(trainedClassifier) {
+  // Clear existing UI widgets from the panel
+  uiPanel.clear();
+  
+  // Add options to draw or use the existing asset for the larger area AoI.
+  var panelContent = ui.Panel({
+    widgets: [
+      ui.Label('Choose how to define the larger classification AoI:'),
+      ui.Button({
+        label: 'Draw Larger AoI',
+        onClick: function() {
+          drawLargerAoI(trainedClassifier);
+        }
+      }),
+      ui.Button({
+        label: 'Use Existing Asset AoI',
+        onClick: function() {
+          useAssetAoI(trainedClassifier);
+        }
+      })
+    ],
+    layout: ui.Panel.Layout.flow('vertical')
+  });
+
+  // Add the content to the UI panel.
+  uiPanel.add(panelContent);
+}
+
+// Function to draw the larger AoI interactively.
+function drawLargerAoI(trainedClassifier) {
+  var drawingTools = Map.drawingTools();
+  drawingTools.setShown(true);  // Show drawing tools
+
+  // Clear previous layers and set drawing mode to draw a polygon.
+  drawingTools.layers().forEach(function (layer) {
+    drawingTools.layers().remove(layer);
+  });
+  drawingTools.setShape('polygon');  // Set shape to polygon
+  drawingTools.draw();  // Start drawing mode
+
+  // Create a button to confirm the AoI selection.
+  var confirmButton = ui.Button({
+    label: 'Confirm Larger AoI Selection',
+    onClick: function() {
+      var drawnLayers = drawingTools.layers();
+      if (drawnLayers.length() > 0) {
+        var largerAoI = ee.Geometry(drawnLayers.get(0).getEeObject());
+        print('Selected Larger AoI:', largerAoI);
+
+        // Classify and export the larger area.
+        classifyAndExportLargerArea(largerAoI, trainedClassifier);
+      } else {
+        print('No AoI selected. Please draw a larger AoI on the map.');
+      }
+    }
+  });
+
+  // Add the button to the UI panel
+  uiPanel.add(confirmButton);
+}
+
+// Function to use the existing asset AoI from GEE
+function useAssetAoI(trainedClassifier) {
+  try {
+    // Define the path to the existing AoI asset in GEE.
+    var assetAoIPath = aoi;  // Update 'your_username' and asset name
+
+    // Read the asset as a FeatureCollection and extract the geometry.
+    var assetAoI = ee.FeatureCollection(assetAoIPath).geometry();
+    print('Asset AoI loaded from GEE:', assetAoI);
+
+    // Classify and export the larger area.
+    classifyAndExportLargerArea(assetAoI, trainedClassifier);
+  } catch (error) {
+    print('Error loading the asset AoI. Please ensure the asset exists and is correctly formatted:', error.message);
+  }
+}
+
+// Function to classify and export the larger area.
+function classifyAndExportLargerArea(largerAoI, trainedClassifier) {
+  // Apply the trained classifier to the larger area.
+  var classifiedLargerAoI = img.classify(trainedClassifier).clip(largerAoI);
+
+  // Visualization parameters for the classified image.
+  var classVis = {
+    min: 0,
+    max: 10,
+    palette: ['006400' ,'ffbb22', 'ffff4c', 'f096ff', 'fa0000', 'b4b4b4', 'f0f0f0', '0064c8', '0096a0', '00cf75', 'fae6a0']
+  };
+
+  // Add the classified larger area to the map.
+  Map.addLayer(classifiedLargerAoI, classVis, 'Classified Larger AoI');
+  Map.centerObject(largerAoI, 10);  // Center the map on the larger AoI
+
+  // Export the classified image to Google Drive with dynamic naming.
+  Export.image.toDrive({
+    image: classifiedLargerAoI,
+    description: 'Classified_' + imgDate,  // Dynamically name the export based on image date
+    folder: 'GEE_Exports',  // Optional: specify a folder in your Google Drive
+    scale: 10,  // Adjust the scale (resolution) of the exported image in meters
+    region: largerAoI,  // Specify the region to export
+    crs: 'EPSG:32738',  // Use default CRS for the region
+    maxPixels: 1e13  // Increase maxPixels to allow for larger exports
+  });
+}

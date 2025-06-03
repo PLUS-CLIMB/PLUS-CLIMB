@@ -1,0 +1,247 @@
+/**** 
+ * GEE script for monthly CHIRPS precipitation time series 
+ * in a user-defined AOI, confirming AOI before analysis and export to Google Drive.
+ ****/
+
+// Create a UI panel
+var panel = ui.Panel({
+  layout: ui.Panel.Layout.flow('vertical'),
+  style: {width: '300px'}
+});
+
+// Title
+panel.add(ui.Label({
+  value: 'CHIRPS Precipitation Time Series',
+  style: {fontSize: '18px', fontWeight: 'bold'}
+}));
+
+// Instructions
+panel.add(ui.Label('1. Use the drawing tool to draw a polygon AOI.'));
+panel.add(ui.Label('2. Enter the full Google Drive folder path below.'));
+panel.add(ui.Label('3. Select the date range for the time series.'));
+panel.add(ui.Label('4. Click "Run Analysis" to generate the time series.'));
+panel.add(ui.Label('5. Click "Preview Graph" to view the graph.'));
+panel.add(ui.Label('6. Click "Preview Trendline" to view the trendline.'));
+panel.add(ui.Label('7. Click "Export Analysis" to export the results to Google Drive.'));
+
+// Input box for Google Drive folder path
+var folderInput = ui.Textbox({
+  placeholder: 'Enter Google Drive folder path',
+  value: 'My Drive/GEE_Exports'  // Default folder path
+});
+panel.add(folderInput);
+
+// Date range selectors
+var startDateInput = ui.Textbox({
+  placeholder: 'YYYY-MM-DD',
+  value: '2020-01-01'  // Default start date
+});
+panel.add(ui.Label('Start Date:'));
+panel.add(startDateInput);
+
+var endDateInput = ui.Textbox({
+  placeholder: 'YYYY-MM-DD',
+  value: '2021-01-01'  // Default end date
+});
+panel.add(ui.Label('End Date:'));
+panel.add(endDateInput);
+
+// Add drawing tools
+var drawingTools = Map.drawingTools();
+drawingTools.setShape('polygon');  // Only allow polygon drawing
+drawingTools.setShown(true);
+
+// Button to confirm AOI
+var confirmButton = ui.Button({
+  label: 'Confirm AOI',
+  onClick: function() {
+    confirmAOI();
+  },
+  style: {stretch: 'horizontal'}
+});
+panel.add(confirmButton);
+
+// Button to run analysis
+var runButton = ui.Button({
+  label: 'Run Analysis',
+  onClick: function() {
+    runAnalysis();
+  },
+  style: {stretch: 'horizontal'},
+  disabled: true  // Initially disabled until AOI is confirmed
+});
+panel.add(runButton);
+
+// Button to preview graph
+var previewButton = ui.Button({
+  label: 'Preview Graph',
+  onClick: function() {
+    previewGraph();
+  },
+  style: {stretch: 'horizontal'},
+  disabled: true  // Initially disabled until analysis is run
+});
+panel.add(previewButton);
+
+// Button to preview trendline
+var trendlineButton = ui.Button({
+  label: 'Preview Trendline',
+  onClick: function() {
+    previewTrendline();
+  },
+  style: {stretch: 'horizontal'},
+  disabled: true  // Initially disabled until analysis is run
+});
+panel.add(trendlineButton);
+
+// Button to export analysis
+var exportButton = ui.Button({
+  label: 'Export Analysis',
+  onClick: function() {
+    exportAnalysis();
+  },
+  style: {stretch: 'horizontal'},
+  disabled: true  // Initially disabled until analysis is run
+});
+panel.add(exportButton);
+
+// Add panel to the mapspace (left side)
+ui.root.insert(0, panel);
+
+// Load CHIRPS daily dataset
+var chirps = ee.ImageCollection("UCSB-CHG/CHIRPS/DAILY");
+
+// Function to confirm AOI
+function confirmAOI() {
+  var layers = drawingTools.layers();
+  if (layers.length() === 0 || layers.get(0).getEeObject() === null) {
+    print("No AOI found! Please draw a polygon first.");
+    return;
+  }
+
+  var aoi = layers.get(0).getEeObject();
+  
+  // Display success message
+  var aoiLabel = ui.Label('AOI Loaded Successfully!');
+  panel.add(aoiLabel);
+  
+  // Perform handshake with CHIRPS data repository
+  performHandshake(aoi);
+}
+
+// Function to perform handshake with CHIRPS data repository
+function performHandshake(aoi) {
+  // Check CHIRPS data availability
+  var latestImage = chirps.sort('system:time_start', false).first();
+  var sample = latestImage.reduceRegion({
+    reducer: ee.Reducer.mean(),
+    geometry: aoi,
+    scale: 0
+  }).get('precipitation');
+  
+  sample.evaluate(function(value) {
+    if (value !== null) {
+      // Display handshake confirmation
+      var handshakeLabel = ui.Label('Handshake with CHIRPS data repository successful!');
+      panel.add(handshakeLabel);
+
+      // Enable the Run Analysis button
+      runButton.setDisabled(false);
+    } else {
+      print("No CHIRPS data found for this AOI. Try adjusting the location.");
+    }
+  });
+}
+
+// Function to run analysis
+function runAnalysis() {
+  var aoi = drawingTools.layers().get(0).getEeObject();
+  var startDate = startDateInput.getValue();
+  var endDate = endDateInput.getValue();
+  
+  var filtered = chirps.filterDate(startDate, endDate).filterBounds(aoi);
+  var timeseries = filtered.mean().reduceRegion({
+    reducer: ee.Reducer.mean(),
+    geometry: aoi,
+    scale: 5000,
+    bestEffort: true
+  });
+
+  print("Analysis run from " + startDate + " to " + endDate);
+  
+  // Enable the Preview Graph, Preview Trendline, and Export Analysis buttons
+  previewButton.setDisabled(false);
+  trendlineButton.setDisabled(false);
+  exportButton.setDisabled(false);
+}
+
+// Function to preview the graph
+function previewGraph() {
+  var aoi = drawingTools.layers().get(0).getEeObject();
+  var startDate = startDateInput.getValue();
+  var endDate = endDateInput.getValue();
+  
+  var filtered = chirps.filterDate(startDate, endDate).filterBounds(aoi);
+  var timeseries = filtered.mean().reduceRegion({
+    reducer: ee.Reducer.mean(),
+    geometry: aoi,
+    scale: 5000,
+    bestEffort: true
+  });
+
+  var chart = ui.Chart.image.series(filtered, aoi, ee.Reducer.mean(), 5000)
+      .setOptions({
+        title: 'CHIRPS Precipitation Time Series',
+        vAxis: {title: 'Precipitation (mm)'},
+        hAxis: {title: 'Date'},
+        lineWidth: 2,
+        pointSize: 4,
+      });
+
+  panel.add(chart);
+}
+
+// Function to preview the trendline
+function previewTrendline() {
+  var aoi = drawingTools.layers().get(0).getEeObject();
+  var startDate = startDateInput.getValue();
+  var endDate = endDateInput.getValue();
+
+  var filtered = chirps.filterDate(startDate, endDate).filterBounds(aoi);
+  
+  var trend = filtered.select('precipitation')
+    .reduce(ee.Reducer.linearFit())
+    .clip(aoi);
+
+  var chart = ui.Chart.image.series(filtered, aoi, ee.Reducer.mean(), 5000)
+      .setSeriesNames(['Precipitation'])
+      .setOptions({
+        title: 'CHIRPS Precipitation Trendline',
+        vAxis: {title: 'Precipitation (mm)'},
+        hAxis: {title: 'Date'},
+        lineWidth: 2,
+        pointSize: 4,
+        trendlines: {0: {}},
+      });
+
+  panel.add(chart);
+}
+
+// Function to export analysis
+function exportAnalysis() {
+  var folderPath = folderInput.getValue();
+  var startDate = startDateInput.getValue();
+  var endDate = endDateInput.getValue();
+  var aoi = drawingTools.layers().get(0).getEeObject();
+
+  // Define the export task
+  var exportTask = Export.image.toDrive({
+    image: chirps.filterDate(startDate, endDate).mean().clip(aoi),
+    description: 'CHIRPS_Time_Series_Export',
+    folder: folderPath,
+    fileNamePrefix: 'CHIRPS_Time_Series',
+    region: aoi,
+    scale: 5000,
+    fileFormat: 'GeoTIFF'
+  });
+}

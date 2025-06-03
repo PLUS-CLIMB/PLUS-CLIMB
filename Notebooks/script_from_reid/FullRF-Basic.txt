@@ -1,0 +1,207 @@
+// Global variable to hold the selected image
+var img;  // Define globally so it can be accessed later
+
+// Define the date range for filtering the ImageCollection.
+var startDate = '2024-08-01';
+var endDate = '2024-08-30';
+
+// Create a buffered point or a rectangular region as your AoI.
+// Example: Buffer a point to a 5 km radius around the new coordinates in Madagascar.
+var point = ee.Geometry.Point([47.5, -21.7]);
+var bufferedPoint = point.buffer(5000);  // 5 km buffer
+
+// Load the Sentinel-2 Surface Reflectance ImageCollection.
+var s2Collection = ee.ImageCollection('COPERNICUS/S2_SR')
+  .filterDate(startDate, endDate)
+  .filterBounds(bufferedPoint)  // Use the buffered point or rectangle here
+  .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 20));  // Set a reasonable cloud cover percentage
+
+// Retrieve the list of image IDs from the ImageCollection (server-side to client-side).
+var imageList = s2Collection.aggregate_array('system:index').getInfo();  // Pulls list of image IDs client-side
+
+// Create a dropdown menu for users to select an image from the collection.
+var imageSelect = ui.Select({
+  items: imageList.map(function(id) { return {label: id, value: id}; }),  // Client-side array now
+  onChange: function(value) {
+    // Load the selected image.
+    img = ee.Image('COPERNICUS/S2_SR/' + value);  // Assign to global variable img
+
+    // Display the selected image on the map.
+    Map.layers().reset();
+    Map.centerObject(img, 10);
+    Map.addLayer(img, {bands: ['B4', 'B3', 'B2'], min: 100, max: 3000}, 'Selected Image');
+
+    // Further processing after selecting the image.
+    processImage(img);
+  }
+});
+
+// Function to process the selected image after user selects it.
+function processImage(img) {
+  // Set up the map to allow interactive drawing of the AoI.
+  var drawingTools = Map.drawingTools();
+  drawingTools.setShown(true);  // Show drawing tools
+
+  // Clear previous layers and set drawing mode to draw a polygon.
+  drawingTools.layers().forEach(function (layer) {
+    drawingTools.layers().remove(layer);
+  });
+  drawingTools.setShape('polygon');  // Set shape to polygon
+  drawingTools.draw();  // Start drawing mode
+
+  // Create a button to confirm the AoI selection.
+  var confirmButton = ui.Button({
+    label: 'Confirm AoI Selection',
+    onClick: function() {
+      // Get the drawn geometry.
+      var drawnLayers = drawingTools.layers();
+      if (drawnLayers.length() > 0) {
+        var aoi = ee.Geometry(drawnLayers.get(0).getEeObject());  // Cast to ee.Geometry
+        print('Selected AoI:', aoi);
+
+        // Clip the image to the selected AoI.
+        var imgClipped = img.clip(aoi);
+
+        // Load ESA WorldCover land cover map.
+        var lc = ee.Image('ESA/WorldCover/v100/2020');
+        var classValues = [10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 100];
+        var remapValues = ee.List.sequence(0, 10);
+        var label = 'lc';
+        lc = lc.remap(classValues, remapValues).rename(label).toByte();
+
+        // Clip the land cover image to the AoI (no reprojection).
+        var lcClipped = lc.clip(aoi);
+
+        // Combine the clipped images.
+        var combined = imgClipped.addBands(lcClipped);
+
+        // Stratified sampling to balance classes.
+        var sample = combined.stratifiedSample({
+          numPoints: 100,
+          classBand: label,
+          region: aoi,
+          scale: 10,
+          geometries: true
+        });
+
+        // Check class distribution in the sample.
+        var classCounts = sample.reduceColumns(ee.Reducer.frequencyHistogram(), [label]);
+        print('Class distribution in sample:', classCounts);
+
+        // Split into training and validation sets.
+        sample = sample.randomColumn();
+        var trainingSample = sample.filter('random <= 0.8');
+        var validationSample = sample.filter('random > 0.8');
+
+        // Train the Random Forest classifier.
+        var trainedClassifier = ee.Classifier.smileRandomForest(50).train({
+          features: trainingSample,
+          classProperty: label,
+          inputProperties: img.bandNames()
+        });
+
+        // Display results and classify the image.
+        print('Results of trained classifier', trainedClassifier.explain());
+        var imgClassified = imgClipped.classify(trainedClassifier);
+
+        // Add layers to the map.
+        var classVis = {
+          min: 0,
+          max: 10,
+          palette: ['006400' ,'ffbb22', 'ffff4c', 'f096ff', 'fa0000', 'b4b4b4', 'f0f0f0', '0064c8', '0096a0', '00cf75', 'fae6a0']
+        };
+        Map.addLayer(imgClassified, classVis, 'Classified');
+        Map.addLayer(aoi, {color: 'white'}, 'Selected AoI', false, 0.5);
+        Map.addLayer(trainingSample, {color: 'black'}, 'Training sample', false);
+        Map.addLayer(validationSample, {color: 'white'}, 'Validation sample', false);
+
+        // Allow drawing of the Study Area interactively.
+        drawStudyArea(trainedClassifier);
+      } else {
+        print('No AoI selected. Please draw an AoI on the map.');
+      }
+    }
+  });
+
+  // Add the button to the UI.
+  ui.root.widgets().add(confirmButton);
+}
+
+// Function to allow interactive drawing of the Study Area (larger area).
+function drawStudyArea(trainedClassifier) {
+  // Clear previous drawing layers and set mode to draw the Study Area.
+  var drawingTools = Map.drawingTools();
+  drawingTools.setShape('polygon');
+  drawingTools.draw();
+
+  // Create a dropdown to select the CRS.
+  var crsOptions = {
+    'EPSG:4326 (WGS84)': 'EPSG:4326',
+    'UTM Zone 38K (EPSG:32738)': 'EPSG:32738',  // Default option for Madagascar
+    'UTM Zone 37K (EPSG:32737)': 'EPSG:32737'
+  };
+
+  var crsSelect = ui.Select({
+    items: Object.keys(crsOptions),
+    value: 'UTM Zone 38K (EPSG:32738)',  // Correctly match the item with the dropdown key
+    onChange: function(value) {
+      print('Selected CRS:', crsOptions[value]);
+    }
+  });
+
+  // Create a button to classify the Study Area and export it.
+  var exportButton = ui.Button({
+    label: 'Export Classified Study Area',
+    onClick: function() {
+      // Get the drawn Study Area geometry.
+      var drawnLayers = drawingTools.layers();
+      if (drawnLayers.length() > 0) {
+        var studyArea = ee.Geometry(drawnLayers.get(0).getEeObject());  // Cast to ee.Geometry
+        print('Selected Study Area:', studyArea);
+
+        // Apply the trained classifier to the Study Area.
+        var classifiedStudyArea = img.classify(trainedClassifier).clip(studyArea);
+
+        // Determine the selected CRS.
+        var selectedCrs = crsOptions[crsSelect.getValue()];
+
+        // Reproject the image to the selected CRS.
+        classifiedStudyArea = classifiedStudyArea.reproject({
+          crs: selectedCrs,
+          scale: 10
+        });
+
+        // Add the classified Study Area to the map.
+        var classVis = {
+          min: 0,
+          max: 10,
+          palette: ['006400' ,'ffbb22', 'ffff4c', 'f096ff', 'fa0000', 'b4b4b4', 'f0f0f0', '0064c8', '0096a0', '00cf75', 'fae6a0']
+        };
+        Map.addLayer(classifiedStudyArea, classVis, 'Classified Study Area');
+        Map.centerObject(studyArea, 10);  // Center the map on the Study Area
+
+        // Export the classified image to Google Drive.
+        Export.image.toDrive({
+          image: classifiedStudyArea,
+          description: 'Classified_Study_Area',
+          folder: 'GEE_Exports',  // Optional: specify a folder in your Google Drive
+          scale: 10,  // Adjust the scale (resolution) of the exported image in meters
+          region: studyArea,  // Specify the region to export
+          crs: selectedCrs,  // Use the selected CRS
+          maxPixels: 1e13  // Increase maxPixels to allow for larger exports
+        });
+      } else {
+        print('No Study Area selected. Please draw a Study Area on the map.');
+      }
+    }
+  });
+
+  // Add the CRS dropdown and export button to the UI.
+  ui.root.widgets().add(ui.Label('Select Coordinate Reference System (CRS):'));
+  ui.root.widgets().add(crsSelect);
+  ui.root.widgets().add(exportButton);
+}
+
+// Add the dropdown menu to the UI.
+ui.root.widgets().add(ui.Label('Select a Sentinel-2 Image:'));
+ui.root.widgets().add(imageSelect);

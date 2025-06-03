@@ -1,0 +1,269 @@
+/*Hi. If you are reading this, then you are arleady INOCLAP. INOCLAP?, you ask. In Need of a Classification Product! Not very funny? Sorry. Better next time.
+Also, if you're reading this after trying to run it and running into walls, haha...you thought you were special, didn't ya? lolestest! May you run into easier code next time!
+
+Anyways.... this code will help you classify multiple sentinel-2 imagery based on ESA's LCC scheme. Too many acronyms? Sorry. We're lazy. Too much typing.
+This was developed in the GEOHUM lab @ Z_GIS, PLUS to help us classify sentinel-2 imagery then download the classified products.
+The code looks quite neat because we're good coders (don't doubt) and because AI helped us to arrange and tie things in a bow.
+Each step is explained as clearly as we could but these are some general pointers for you;
+- Work with a few imagery for each single run. GEE tends to run out of memory if you have several images to run a classifier on
+- Feel free to tweak with the cloud threshold, dates, sample points, trees, scale as you please. Just please read the comment on each parameter before going all Jack Sparrow
+- A very good overall accuracy at training would be about 0.7. Don't try for 0.9, you probably won't get it. Don't settle for 0.5, it is not good enough
+- We also suggest that you load your AOI asset into the code before you run the code. But you're free to discover the alternative. It is a good thing that you aptly name it too.
+- This code can further be improved to incorporate the timeseries graphs but becasue Rome wasn't built in a single internship, we decided to leave that. So try it
+
+If you're really stuck and need to ask for help. In this order of preferance try: Batman, Chuck Norris, Macgyver, Google, AI and very much in the last place, contact someone in the Christian Doppler Lab at Z_GIS called Sophia.
+If she can't help you, its not her or you or the code... its the air or gravity or possibly... global warming.
+This code will generally work as it should but surprises make life fun, no? So don't fright if some come up. Enjoy!
+Lots of love,
+RMT
+*/
+
+
+// Define global variables for user inputs
+var startDate = '2024-08-01';  // Set default start date
+var endDate = '2024-08-20';    // Set default end date
+var cloudThreshold = 30;       // Set default cloud threshold (percentage)
+var imgCol;  // Image Collection to be filtered based on user input
+
+var aoi;  // Define a variable to hold the loaded AoI
+
+// Path to the existing AoI asset in GEE
+var assetPath = 'projects/ee-taremwareid/assets/AoI';  // Update 'your_username' and asset name
+
+// Create a UI panel for user inputs
+var uiPanel = ui.Panel({
+  style: {width: '300px'}
+});
+ui.root.add(uiPanel);  // Add the panel to the UI
+
+// Input for Start Date
+var startDateInput = ui.Textbox({
+  placeholder: 'YYYY-MM-DD',
+  value: startDate,
+  onChange: function(value) {
+    startDate = value;
+  }
+});
+uiPanel.add(ui.Label('Start Date:'));
+uiPanel.add(startDateInput);
+
+// Input for End Date
+var endDateInput = ui.Textbox({
+  placeholder: 'YYYY-MM-DD',
+  value: endDate,
+  onChange: function(value) {
+    endDate = value;
+  }
+});
+uiPanel.add(ui.Label('End Date:'));
+uiPanel.add(endDateInput);
+
+// Slider for Cloud Threshold
+var cloudThresholdSlider = ui.Slider({
+  min: 0,
+  max: 100,
+  value: cloudThreshold,
+  step: 1,
+  onChange: function(value) {
+    cloudThreshold = value;
+  }
+});
+uiPanel.add(ui.Label('Cloud Threshold (%):'));
+uiPanel.add(cloudThresholdSlider);
+
+// Load the AoI from an existing GEE asset
+function loadAoI() {
+  try {
+    // Load the asset as a FeatureCollection
+    aoi = ee.FeatureCollection(assetPath).geometry();
+    print('Loaded AoI from GEE Asset:', aoi);
+
+    // Filter images based on user-defined parameters
+    filterImages();
+
+    // Proceed to select the training area
+    selectTrainingArea();
+  } catch (error) {
+    print('Error loading the AoI asset. Please ensure the asset exists and is correctly formatted:', error.message);
+  }
+}
+
+// Function to filter images based on user input
+function filterImages() {
+  // Load the Sentinel-2 Surface Reflectance ImageCollection and filter by date range and cloud cover
+  imgCol = ee.ImageCollection('COPERNICUS/S2_SR')
+    .filterDate(startDate, endDate)
+    .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', cloudThreshold))
+    .filterBounds(aoi);  // Filter by the user-defined AoI
+
+  print('Filtered Image Collection:', imgCol);
+}
+
+// Function to select training area (user draws it on the map)
+function selectTrainingArea() {
+  var drawingTools = Map.drawingTools();
+  drawingTools.setShown(true);  // Show drawing tools
+
+  // Clear previous layers and set drawing mode to draw a polygon
+  drawingTools.layers().forEach(function (layer) {
+    drawingTools.layers().remove(layer);
+  });
+  drawingTools.setShape('polygon');  // Set shape to polygon
+  drawingTools.draw();  // Start drawing mode
+
+
+  // Confirm Training Area button
+  var confirmButton = ui.Button({
+    label: 'Confirm Training Area Selection',
+    onClick: function() {
+      var drawnLayers = drawingTools.layers();
+      if (drawnLayers.length() > 0) {
+        var trainingArea = ee.Geometry(drawnLayers.get(0).getEeObject());  // Get drawn geometry
+        print('Selected Training Area:', trainingArea);
+
+        // Once the training area is selected, pass it to the classification function
+        classifyAndDisplayImages(trainingArea);  // Call the classification function with the drawn area
+      } else {
+        print('No training area selected. Please draw a training area on the map.');
+      }
+    }
+  });
+
+  // Add the button to the UI panel to confirm the drawn area
+  uiPanel.add(ui.Label('Draw the Training Area on the Map:'));
+  uiPanel.add(confirmButton);
+}
+
+ /*// Apply the trained classifier to the validation sample.
+var validation = validationSample.classify(trainedClassifier); 
+  
+  // Generate the confusion matrix.
+var confusionMatrix = validation.errorMatrix({
+ actual: 'lc',  // The actual class property from the validation data
+ predicted: 'classification'  // The predicted class from the classifier
+});*/
+
+// Function to mask clouds using the MSK_CLDPRB band (cloud probability)
+function maskS2clouds(image) {
+  var cloudProb = image.select('MSK_CLDPRB');  // Cloud probability band
+  var snowProb = image.select('MSK_SNWPRB');  // Snow probability band (optional)
+
+  // Clouds are masked out if the cloud probability is greater than 40% and snow is less than 1%
+  var cloudMask = cloudProb.lt(40).and(snowProb.lt(1));  // Adjust threshold as needed
+  return image.updateMask(cloudMask);
+}
+
+// Define the visualization parameters for ESA WorldCover classification
+var classVis = {
+  min: 0,
+  max: 10,  // 11 classes in total
+  palette: ['#006400', '#ffbb22', '#ffff4c', '#f096ff', '#fa0000',
+            '#b4b4b4', '#f0f0f0', '#0064c8', '#0096a0', '#00cf75', '#fae6a0']
+};
+
+// Define the class values and remap values to match
+var classValues = [10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 100];  // 11 values
+var remapValues = ee.List.sequence(0, 10);  // Adjust to 11 values to match the classValues
+
+// Function to classify and display each image in the ImageCollection and calculate class counts
+function classifyAndDisplayImages(trainingArea) {
+  // Load ESA WorldCover land cover map.
+  var lc = ee.Image('ESA/WorldCover/v100/2020');
+  var label = 'lc';
+  lc = lc.remap(classValues, remapValues).rename(label).toByte();  // Remap class values
+
+  // Process each image in the collection
+  imgCol.evaluate(function(imageList) {
+    var dateToCounts = {};  // Object to store combined counts for each date
+    
+    imageList.features.forEach(function(imageInfo, index) {
+      var imgId = imageInfo.id;
+      var image = ee.Image(imgId);
+
+      // Apply cloud masking
+      image = maskS2clouds(image);
+
+      // Identify the scene with A/B
+      var sceneLabel = index % 2 === 0 ? "A" : "B";
+
+      // Sample the training area
+      var sample = image.addBands(lc).stratifiedSample({
+        numPoints: 150,
+        classBand: label,
+        region: trainingArea,
+        scale: 20,  // Use larger scale to reduce memory usage
+        geometries: true
+      });
+
+      // Train the Random Forest classifier
+      var classifier = ee.Classifier.smileRandomForest(50).train({
+        features: sample,
+        classProperty: label,
+        inputProperties: image.bandNames()
+      });
+
+      // Classify the image
+      var classifiedImage = image.classify(classifier).clip(aoi).rename('classification');
+
+      // Get the image date (server-side)
+      var date = ee.Date(image.get('system:time_start')).format('YYYY-MM-dd');
+
+      // Convert the date to client-side and add the layer to the map using ESA palette
+      date.evaluate(function(clientDate) {
+        var label = clientDate + "_" + sceneLabel;  // Date + Scene Identifier (A/B)
+        Map.addLayer(classifiedImage, classVis, label);
+
+        // Compute class counts for the classified image
+        var counts = classifiedImage.reduceRegion({
+          reducer: ee.Reducer.frequencyHistogram(),
+          geometry: trainingArea,
+          scale: 20,  // Reduce scale to prevent memory issues
+          maxPixels: 1e9,  // Adjust max pixels to reduce memory usage
+          tileScale: 2  // Increase tileScale to handle large datasets
+        }).get('classification');
+
+        // Evaluate the counts and combine them for the same date after both scenes are done
+        counts.evaluate(function(classCounts) {
+          if (classCounts) {
+            if (!dateToCounts[clientDate]) {
+              // Initialize the count for this date
+              dateToCounts[clientDate] = {A: {}, B: {}, combined: {}};
+            }
+
+            // Store counts for A or B scene
+            dateToCounts[clientDate][sceneLabel] = classCounts;
+
+            // Combine the counts only after both A and B are done
+            if (dateToCounts[clientDate].A && dateToCounts[clientDate].B) {
+              var combinedCounts = {};
+              var ACounts = dateToCounts[clientDate].A;
+              var BCounts = dateToCounts[clientDate].B;
+
+              // Combine A and B counts
+              for (var key in ACounts) {
+                combinedCounts[key] = (ACounts[key] || 0) + (BCounts[key] || 0);  // Sum counts for each class
+              }
+              dateToCounts[clientDate].combined = combinedCounts;
+
+              // Print the combined counts for this date
+              print('Combined Class Counts for ' + clientDate + ':', dateToCounts[clientDate].combined);
+            }
+
+            // Print the class counts for each scene
+            print('Class Counts for ' + clientDate + ' Scene ' + sceneLabel + ':', classCounts);
+          }
+        });
+      });
+    });
+  });
+
+  // Print confirmation that the images have been classified and displayed
+  print('All classified images have been displayed.');
+}
+
+// Call the function to load the AoI and begin the process
+loadAoI();
+
+// Center map on AoI and add initial layer
+Map.centerObject(aoi, 10);
+Map.addLayer(aoi, {color: 'red'}, 'Area of Interest');
