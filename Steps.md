@@ -42,6 +42,7 @@ We divide Senegal into **6 equal rectangular grid cells**.
 5. **Process each of the 6 grids independently** for scalability
 6. **Export indices** like NDVI, LST, and more
 
+
 ### Example Code Snippet (Python):
 
 ```python
@@ -131,3 +132,12 @@ var stats = monthlyStats.map(function(img) {
 
 
 Now, when you have These layers fo
+
+
+### Errors in the data cube outputs
+
+* The threshold is altered because of many artifacts, we need to change the threshold - reproject the raster to WGS84 28N for Senegal and then perhaps mask the value with adm_0 outline
+
+![NDVI Masking](<WhatsApp Image 2025-06-16 at 11.34.27_6d48571c.jpg>)
+
+![Reprojection](<WhatsApp Image 2025-06-16 at 11.33.34_5d754d6e.jpg>)
