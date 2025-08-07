@@ -1,0 +1,554 @@
+fid,AEZclass,AEZclassname
+1,2,Tropics lowland; semi-arid with soil/terrain limitations
+2,50,Land with severe soil/terrain limitations
+3,2,Tropics lowland; semi-arid with soil/terrain limitations
+4,53,Desert/Arid climate
+5,50,Land with severe soil/terrain limitations
+6,2,Tropics lowland; semi-arid with soil/terrain limitations
+7,53,Desert/Arid climate
+8,53,Desert/Arid climate
+9,2,Tropics lowland; semi-arid with soil/terrain limitations
+10,52,Dominantly hydromorphic soils
+11,2,Tropics lowland; semi-arid with soil/terrain limitations
+12,53,Desert/Arid climate
+13,50,Land with severe soil/terrain limitations
+14,2,Tropics lowland; semi-arid with soil/terrain limitations
+15,2,Tropics lowland; semi-arid with soil/terrain limitations
+16,50,Land with severe soil/terrain limitations
+17,2,Tropics lowland; semi-arid with soil/terrain limitations
+18,2,Tropics lowland; semi-arid with soil/terrain limitations
+19,53,Desert/Arid climate
+20,53,Desert/Arid climate
+21,52,Dominantly hydromorphic soils
+22,53,Desert/Arid climate
+23,53,Desert/Arid climate
+24,56,Dominantly built-up land
+25,56,Dominantly built-up land
+26,56,Dominantly built-up land
+27,56,Dominantly built-up land
+28,52,Dominantly hydromorphic soils
+29,2,Tropics lowland; semi-arid with soil/terrain limitations
+30,2,Tropics lowland; semi-arid with soil/terrain limitations
+31,2,Tropics lowland; semi-arid with soil/terrain limitations
+32,2,Tropics lowland; semi-arid with soil/terrain limitations
+33,50,Land with severe soil/terrain limitations
+34,2,Tropics lowland; semi-arid with soil/terrain limitations
+35,2,Tropics lowland; semi-arid with soil/terrain limitations
+36,2,Tropics lowland; semi-arid with soil/terrain limitations
+37,2,Tropics lowland; semi-arid with soil/terrain limitations
+38,2,Tropics lowland; semi-arid with soil/terrain limitations
+39,2,Tropics lowland; semi-arid with soil/terrain limitations
+40,2,Tropics lowland; semi-arid with soil/terrain limitations
+41,50,Land with severe soil/terrain limitations
+42,50,Land with severe soil/terrain limitations
+43,50,Land with severe soil/terrain limitations
+44,50,Land with severe soil/terrain limitations
+45,53,Desert/Arid climate
+46,2,Tropics lowland; semi-arid with soil/terrain limitations
+47,53,Desert/Arid climate
+48,2,Tropics lowland; semi-arid with soil/terrain limitations
+49,2,Tropics lowland; semi-arid with soil/terrain limitations
+50,50,Land with severe soil/terrain limitations
+51,2,Tropics lowland; semi-arid with soil/terrain limitations
+52,2,Tropics lowland; semi-arid with soil/terrain limitations
+53,2,Tropics lowland; semi-arid with soil/terrain limitations
+54,2,Tropics lowland; semi-arid with soil/terrain limitations
+55,2,Tropics lowland; semi-arid with soil/terrain limitations
+56,50,Land with severe soil/terrain limitations
+57,50,Land with severe soil/terrain limitations
+58,50,Land with severe soil/terrain limitations
+59,50,Land with severe soil/terrain limitations
+60,50,Land with severe soil/terrain limitations
+61,2,Tropics lowland; semi-arid with soil/terrain limitations
+62,2,Tropics lowland; semi-arid with soil/terrain limitations
+63,2,Tropics lowland; semi-arid with soil/terrain limitations
+64,2,Tropics lowland; semi-arid with soil/terrain limitations
+65,50,Land with severe soil/terrain limitations
+66,50,Land with severe soil/terrain limitations
+67,50,Land with severe soil/terrain limitations
+68,50,Land with severe soil/terrain limitations
+69,2,Tropics lowland; semi-arid with soil/terrain limitations
+70,2,Tropics lowland; semi-arid with soil/terrain limitations
+71,50,Land with severe soil/terrain limitations
+72,2,Tropics lowland; semi-arid with soil/terrain limitations
+73,2,Tropics lowland; semi-arid with soil/terrain limitations
+74,2,Tropics lowland; semi-arid with soil/terrain limitations
+75,2,Tropics lowland; semi-arid with soil/terrain limitations
+76,53,Desert/Arid climate
+77,53,Desert/Arid climate
+78,53,Desert/Arid climate
+79,53,Desert/Arid climate
+80,53,Desert/Arid climate
+81,53,Desert/Arid climate
+82,53,Desert/Arid climate
+83,52,Dominantly hydromorphic soils
+84,53,Desert/Arid climate
+85,53,Desert/Arid climate
+86,2,Tropics lowland; semi-arid with soil/terrain limitations
+87,53,Desert/Arid climate
+88,53,Desert/Arid climate
+89,2,Tropics lowland; semi-arid with soil/terrain limitations
+90,2,Tropics lowland; semi-arid with soil/terrain limitations
+91,53,Desert/Arid climate
+92,56,Dominantly built-up land
+93,56,Dominantly built-up land
+94,56,Dominantly built-up land
+95,56,Dominantly built-up land
+96,56,Dominantly built-up land
+97,50,Land with severe soil/terrain limitations
+98,2,Tropics lowland; semi-arid with soil/terrain limitations
+99,50,Land with severe soil/terrain limitations
+100,50,Land with severe soil/terrain limitations
+101,50,Land with severe soil/terrain limitations
+102,2,Tropics lowland; semi-arid with soil/terrain limitations
+103,2,Tropics lowland; semi-arid with soil/terrain limitations
+104,2,Tropics lowland; semi-arid with soil/terrain limitations
+105,1,Tropics lowland; semi-arid no soil/terrain limitations
+106,2,Tropics lowland; semi-arid with soil/terrain limitations
+107,2,Tropics lowland; semi-arid with soil/terrain limitations
+108,2,Tropics lowland; semi-arid with soil/terrain limitations
+109,2,Tropics lowland; semi-arid with soil/terrain limitations
+110,2,Tropics lowland; semi-arid with soil/terrain limitations
+111,2,Tropics lowland; semi-arid with soil/terrain limitations
+112,2,Tropics lowland; semi-arid with soil/terrain limitations
+113,2,Tropics lowland; semi-arid with soil/terrain limitations
+114,2,Tropics lowland; semi-arid with soil/terrain limitations
+115,50,Land with severe soil/terrain limitations
+116,50,Land with severe soil/terrain limitations
+117,50,Land with severe soil/terrain limitations
+118,50,Land with severe soil/terrain limitations
+119,2,Tropics lowland; semi-arid with soil/terrain limitations
+120,2,Tropics lowland; semi-arid with soil/terrain limitations
+121,50,Land with severe soil/terrain limitations
+122,2,Tropics lowland; semi-arid with soil/terrain limitations
+123,2,Tropics lowland; semi-arid with soil/terrain limitations
+124,2,Tropics lowland; semi-arid with soil/terrain limitations
+125,2,Tropics lowland; semi-arid with soil/terrain limitations
+126,2,Tropics lowland; semi-arid with soil/terrain limitations
+127,2,Tropics lowland; semi-arid with soil/terrain limitations
+128,2,Tropics lowland; semi-arid with soil/terrain limitations
+129,2,Tropics lowland; semi-arid with soil/terrain limitations
+130,2,Tropics lowland; semi-arid with soil/terrain limitations
+131,2,Tropics lowland; semi-arid with soil/terrain limitations
+132,2,Tropics lowland; semi-arid with soil/terrain limitations
+133,2,Tropics lowland; semi-arid with soil/terrain limitations
+134,52,Dominantly hydromorphic soils
+135,2,Tropics lowland; semi-arid with soil/terrain limitations
+136,52,Dominantly hydromorphic soils
+137,2,Tropics lowland; semi-arid with soil/terrain limitations
+138,2,Tropics lowland; semi-arid with soil/terrain limitations
+139,2,Tropics lowland; semi-arid with soil/terrain limitations
+140,57,Dominantly water
+141,2,Tropics lowland; semi-arid with soil/terrain limitations
+142,2,Tropics lowland; semi-arid with soil/terrain limitations
+143,2,Tropics lowland; semi-arid with soil/terrain limitations
+144,2,Tropics lowland; semi-arid with soil/terrain limitations
+145,2,Tropics lowland; semi-arid with soil/terrain limitations
+146,2,Tropics lowland; semi-arid with soil/terrain limitations
+147,2,Tropics lowland; semi-arid with soil/terrain limitations
+148,1,Tropics lowland; semi-arid no soil/terrain limitations
+149,2,Tropics lowland; semi-arid with soil/terrain limitations
+150,2,Tropics lowland; semi-arid with soil/terrain limitations
+151,1,Tropics lowland; semi-arid no soil/terrain limitations
+152,2,Tropics lowland; semi-arid with soil/terrain limitations
+153,2,Tropics lowland; semi-arid with soil/terrain limitations
+154,2,Tropics lowland; semi-arid with soil/terrain limitations
+155,2,Tropics lowland; semi-arid with soil/terrain limitations
+156,53,Desert/Arid climate
+157,53,Desert/Arid climate
+158,53,Desert/Arid climate
+159,50,Land with severe soil/terrain limitations
+160,2,Tropics lowland; semi-arid with soil/terrain limitations
+161,2,Tropics lowland; semi-arid with soil/terrain limitations
+162,2,Tropics lowland; semi-arid with soil/terrain limitations
+163,2,Tropics lowland; semi-arid with soil/terrain limitations
+164,2,Tropics lowland; semi-arid with soil/terrain limitations
+165,2,Tropics lowland; semi-arid with soil/terrain limitations
+166,2,Tropics lowland; semi-arid with soil/terrain limitations
+167,2,Tropics lowland; semi-arid with soil/terrain limitations
+168,50,Land with severe soil/terrain limitations
+169,50,Land with severe soil/terrain limitations
+170,2,Tropics lowland; semi-arid with soil/terrain limitations
+171,52,Dominantly hydromorphic soils
+172,53,Desert/Arid climate
+173,53,Desert/Arid climate
+174,53,Desert/Arid climate
+175,51,Ample irrigated soils
+176,53,Desert/Arid climate
+177,52,Dominantly hydromorphic soils
+178,2,Tropics lowland; semi-arid with soil/terrain limitations
+179,2,Tropics lowland; semi-arid with soil/terrain limitations
+180,2,Tropics lowland; semi-arid with soil/terrain limitations
+181,2,Tropics lowland; semi-arid with soil/terrain limitations
+182,52,Dominantly hydromorphic soils
+183,56,Dominantly built-up land
+184,56,Dominantly built-up land
+185,56,Dominantly built-up land
+186,56,Dominantly built-up land
+187,56,Dominantly built-up land
+188,56,Dominantly built-up land
+189,2,Tropics lowland; semi-arid with soil/terrain limitations
+190,2,Tropics lowland; semi-arid with soil/terrain limitations
+191,2,Tropics lowland; semi-arid with soil/terrain limitations
+192,56,Dominantly built-up land
+193,56,Dominantly built-up land
+194,2,Tropics lowland; semi-arid with soil/terrain limitations
+195,2,Tropics lowland; semi-arid with soil/terrain limitations
+196,2,Tropics lowland; semi-arid with soil/terrain limitations
+197,2,Tropics lowland; semi-arid with soil/terrain limitations
+198,2,Tropics lowland; semi-arid with soil/terrain limitations
+199,2,Tropics lowland; semi-arid with soil/terrain limitations
+200,2,Tropics lowland; semi-arid with soil/terrain limitations
+201,2,Tropics lowland; semi-arid with soil/terrain limitations
+202,2,Tropics lowland; semi-arid with soil/terrain limitations
+203,2,Tropics lowland; semi-arid with soil/terrain limitations
+204,2,Tropics lowland; semi-arid with soil/terrain limitations
+205,2,Tropics lowland; semi-arid with soil/terrain limitations
+206,2,Tropics lowland; semi-arid with soil/terrain limitations
+207,2,Tropics lowland; semi-arid with soil/terrain limitations
+208,52,Dominantly hydromorphic soils
+209,2,Tropics lowland; semi-arid with soil/terrain limitations
+210,50,Land with severe soil/terrain limitations
+211,2,Tropics lowland; semi-arid with soil/terrain limitations
+212,2,Tropics lowland; semi-arid with soil/terrain limitations
+213,2,Tropics lowland; semi-arid with soil/terrain limitations
+214,2,Tropics lowland; semi-arid with soil/terrain limitations
+215,53,Desert/Arid climate
+216,2,Tropics lowland; semi-arid with soil/terrain limitations
+217,2,Tropics lowland; semi-arid with soil/terrain limitations
+218,50,Land with severe soil/terrain limitations
+219,50,Land with severe soil/terrain limitations
+220,2,Tropics lowland; semi-arid with soil/terrain limitations
+221,2,Tropics lowland; semi-arid with soil/terrain limitations
+222,2,Tropics lowland; semi-arid with soil/terrain limitations
+223,53,Desert/Arid climate
+224,53,Desert/Arid climate
+225,53,Desert/Arid climate
+226,53,Desert/Arid climate
+227,2,Tropics lowland; semi-arid with soil/terrain limitations
+228,2,Tropics lowland; semi-arid with soil/terrain limitations
+229,2,Tropics lowland; semi-arid with soil/terrain limitations
+230,2,Tropics lowland; semi-arid with soil/terrain limitations
+231,2,Tropics lowland; semi-arid with soil/terrain limitations
+232,2,Tropics lowland; semi-arid with soil/terrain limitations
+233,50,Land with severe soil/terrain limitations
+234,2,Tropics lowland; semi-arid with soil/terrain limitations
+235,2,Tropics lowland; semi-arid with soil/terrain limitations
+236,2,Tropics lowland; semi-arid with soil/terrain limitations
+237,2,Tropics lowland; semi-arid with soil/terrain limitations
+238,2,Tropics lowland; semi-arid with soil/terrain limitations
+239,2,Tropics lowland; semi-arid with soil/terrain limitations
+240,2,Tropics lowland; semi-arid with soil/terrain limitations
+241,2,Tropics lowland; semi-arid with soil/terrain limitations
+242,2,Tropics lowland; semi-arid with soil/terrain limitations
+243,2,Tropics lowland; semi-arid with soil/terrain limitations
+244,2,Tropics lowland; semi-arid with soil/terrain limitations
+245,2,Tropics lowland; semi-arid with soil/terrain limitations
+246,1,Tropics lowland; semi-arid no soil/terrain limitations
+247,1,Tropics lowland; semi-arid no soil/terrain limitations
+248,2,Tropics lowland; semi-arid with soil/terrain limitations
+249,2,Tropics lowland; semi-arid with soil/terrain limitations
+250,2,Tropics lowland; semi-arid with soil/terrain limitations
+251,2,Tropics lowland; semi-arid with soil/terrain limitations
+252,2,Tropics lowland; semi-arid with soil/terrain limitations
+253,2,Tropics lowland; semi-arid with soil/terrain limitations
+254,2,Tropics lowland; semi-arid with soil/terrain limitations
+255,2,Tropics lowland; semi-arid with soil/terrain limitations
+256,53,Desert/Arid climate
+257,2,Tropics lowland; semi-arid with soil/terrain limitations
+258,1,Tropics lowland; semi-arid no soil/terrain limitations
+259,2,Tropics lowland; semi-arid with soil/terrain limitations
+260,2,Tropics lowland; semi-arid with soil/terrain limitations
+261,2,Tropics lowland; semi-arid with soil/terrain limitations
+262,2,Tropics lowland; semi-arid with soil/terrain limitations
+263,2,Tropics lowland; semi-arid with soil/terrain limitations
+264,2,Tropics lowland; semi-arid with soil/terrain limitations
+265,2,Tropics lowland; semi-arid with soil/terrain limitations
+266,2,Tropics lowland; semi-arid with soil/terrain limitations
+267,56,Dominantly built-up land
+268,53,Desert/Arid climate
+269,2,Tropics lowland; semi-arid with soil/terrain limitations
+270,2,Tropics lowland; semi-arid with soil/terrain limitations
+271,2,Tropics lowland; semi-arid with soil/terrain limitations
+272,2,Tropics lowland; semi-arid with soil/terrain limitations
+273,50,Land with severe soil/terrain limitations
+274,52,Dominantly hydromorphic soils
+275,2,Tropics lowland; semi-arid with soil/terrain limitations
+276,2,Tropics lowland; semi-arid with soil/terrain limitations
+277,2,Tropics lowland; semi-arid with soil/terrain limitations
+278,2,Tropics lowland; semi-arid with soil/terrain limitations
+279,2,Tropics lowland; semi-arid with soil/terrain limitations
+280,2,Tropics lowland; semi-arid with soil/terrain limitations
+281,51,Ample irrigated soils
+282,53,Desert/Arid climate
+283,53,Desert/Arid climate
+284,51,Ample irrigated soils
+285,53,Desert/Arid climate
+286,53,Desert/Arid climate
+287,53,Desert/Arid climate
+288,53,Desert/Arid climate
+289,56,Dominantly built-up land
+290,2,Tropics lowland; semi-arid with soil/terrain limitations
+291,2,Tropics lowland; semi-arid with soil/terrain limitations
+292,2,Tropics lowland; semi-arid with soil/terrain limitations
+293,53,Desert/Arid climate
+294,53,Desert/Arid climate
+295,2,Tropics lowland; semi-arid with soil/terrain limitations
+296,2,Tropics lowland; semi-arid with soil/terrain limitations
+297,2,Tropics lowland; semi-arid with soil/terrain limitations
+298,2,Tropics lowland; semi-arid with soil/terrain limitations
+299,2,Tropics lowland; semi-arid with soil/terrain limitations
+300,2,Tropics lowland; semi-arid with soil/terrain limitations
+301,50,Land with severe soil/terrain limitations
+302,50,Land with severe soil/terrain limitations
+303,2,Tropics lowland; semi-arid with soil/terrain limitations
+304,2,Tropics lowland; semi-arid with soil/terrain limitations
+305,2,Tropics lowland; semi-arid with soil/terrain limitations
+306,2,Tropics lowland; semi-arid with soil/terrain limitations
+307,2,Tropics lowland; semi-arid with soil/terrain limitations
+308,52,Dominantly hydromorphic soils
+309,2,Tropics lowland; semi-arid with soil/terrain limitations
+310,1,Tropics lowland; semi-arid no soil/terrain limitations
+311,2,Tropics lowland; semi-arid with soil/terrain limitations
+312,2,Tropics lowland; semi-arid with soil/terrain limitations
+313,2,Tropics lowland; semi-arid with soil/terrain limitations
+314,2,Tropics lowland; semi-arid with soil/terrain limitations
+315,2,Tropics lowland; semi-arid with soil/terrain limitations
+316,53,Desert/Arid climate
+317,53,Desert/Arid climate
+318,53,Desert/Arid climate
+319,2,Tropics lowland; semi-arid with soil/terrain limitations
+320,2,Tropics lowland; semi-arid with soil/terrain limitations
+321,53,Desert/Arid climate
+322,53,Desert/Arid climate
+323,51,Ample irrigated soils
+324,53,Desert/Arid climate
+325,53,Desert/Arid climate
+326,51,Ample irrigated soils
+327,2,Tropics lowland; semi-arid with soil/terrain limitations
+328,2,Tropics lowland; semi-arid with soil/terrain limitations
+329,2,Tropics lowland; semi-arid with soil/terrain limitations
+330,2,Tropics lowland; semi-arid with soil/terrain limitations
+331,2,Tropics lowland; semi-arid with soil/terrain limitations
+332,2,Tropics lowland; semi-arid with soil/terrain limitations
+333,2,Tropics lowland; semi-arid with soil/terrain limitations
+334,2,Tropics lowland; semi-arid with soil/terrain limitations
+335,2,Tropics lowland; semi-arid with soil/terrain limitations
+336,2,Tropics lowland; semi-arid with soil/terrain limitations
+337,2,Tropics lowland; semi-arid with soil/terrain limitations
+338,2,Tropics lowland; semi-arid with soil/terrain limitations
+339,2,Tropics lowland; semi-arid with soil/terrain limitations
+340,2,Tropics lowland; semi-arid with soil/terrain limitations
+341,2,Tropics lowland; semi-arid with soil/terrain limitations
+342,2,Tropics lowland; semi-arid with soil/terrain limitations
+343,2,Tropics lowland; semi-arid with soil/terrain limitations
+344,2,Tropics lowland; semi-arid with soil/terrain limitations
+345,2,Tropics lowland; semi-arid with soil/terrain limitations
+346,2,Tropics lowland; semi-arid with soil/terrain limitations
+347,2,Tropics lowland; semi-arid with soil/terrain limitations
+348,2,Tropics lowland; semi-arid with soil/terrain limitations
+349,2,Tropics lowland; semi-arid with soil/terrain limitations
+350,2,Tropics lowland; semi-arid with soil/terrain limitations
+351,2,Tropics lowland; semi-arid with soil/terrain limitations
+352,2,Tropics lowland; semi-arid with soil/terrain limitations
+353,2,Tropics lowland; semi-arid with soil/terrain limitations
+354,2,Tropics lowland; semi-arid with soil/terrain limitations
+355,2,Tropics lowland; semi-arid with soil/terrain limitations
+356,2,Tropics lowland; semi-arid with soil/terrain limitations
+357,2,Tropics lowland; semi-arid with soil/terrain limitations
+358,2,Tropics lowland; semi-arid with soil/terrain limitations
+359,2,Tropics lowland; semi-arid with soil/terrain limitations
+360,2,Tropics lowland; semi-arid with soil/terrain limitations
+361,2,Tropics lowland; semi-arid with soil/terrain limitations
+362,2,Tropics lowland; semi-arid with soil/terrain limitations
+363,2,Tropics lowland; semi-arid with soil/terrain limitations
+364,2,Tropics lowland; semi-arid with soil/terrain limitations
+365,2,Tropics lowland; semi-arid with soil/terrain limitations
+366,2,Tropics lowland; semi-arid with soil/terrain limitations
+367,2,Tropics lowland; semi-arid with soil/terrain limitations
+368,2,Tropics lowland; semi-arid with soil/terrain limitations
+369,2,Tropics lowland; semi-arid with soil/terrain limitations
+370,2,Tropics lowland; semi-arid with soil/terrain limitations
+371,2,Tropics lowland; semi-arid with soil/terrain limitations
+372,2,Tropics lowland; semi-arid with soil/terrain limitations
+373,2,Tropics lowland; semi-arid with soil/terrain limitations
+374,2,Tropics lowland; semi-arid with soil/terrain limitations
+375,2,Tropics lowland; semi-arid with soil/terrain limitations
+376,2,Tropics lowland; semi-arid with soil/terrain limitations
+377,50,Land with severe soil/terrain limitations
+378,2,Tropics lowland; semi-arid with soil/terrain limitations
+379,50,Land with severe soil/terrain limitations
+380,50,Land with severe soil/terrain limitations
+381,50,Land with severe soil/terrain limitations
+382,2,Tropics lowland; semi-arid with soil/terrain limitations
+383,50,Land with severe soil/terrain limitations
+384,2,Tropics lowland; semi-arid with soil/terrain limitations
+385,2,Tropics lowland; semi-arid with soil/terrain limitations
+386,50,Land with severe soil/terrain limitations
+387,2,Tropics lowland; semi-arid with soil/terrain limitations
+388,53,Desert/Arid climate
+389,53,Desert/Arid climate
+390,53,Desert/Arid climate
+391,2,Tropics lowland; semi-arid with soil/terrain limitations
+392,2,Tropics lowland; semi-arid with soil/terrain limitations
+393,2,Tropics lowland; semi-arid with soil/terrain limitations
+394,53,Desert/Arid climate
+395,53,Desert/Arid climate
+396,50,Land with severe soil/terrain limitations
+397,2,Tropics lowland; semi-arid with soil/terrain limitations
+398,2,Tropics lowland; semi-arid with soil/terrain limitations
+399,2,Tropics lowland; semi-arid with soil/terrain limitations
+400,53,Desert/Arid climate
+401,53,Desert/Arid climate
+402,2,Tropics lowland; semi-arid with soil/terrain limitations
+403,50,Land with severe soil/terrain limitations
+404,50,Land with severe soil/terrain limitations
+405,50,Land with severe soil/terrain limitations
+406,2,Tropics lowland; semi-arid with soil/terrain limitations
+407,2,Tropics lowland; semi-arid with soil/terrain limitations
+408,2,Tropics lowland; semi-arid with soil/terrain limitations
+409,2,Tropics lowland; semi-arid with soil/terrain limitations
+410,2,Tropics lowland; semi-arid with soil/terrain limitations
+411,2,Tropics lowland; semi-arid with soil/terrain limitations
+412,2,Tropics lowland; semi-arid with soil/terrain limitations
+413,2,Tropics lowland; semi-arid with soil/terrain limitations
+414,2,Tropics lowland; semi-arid with soil/terrain limitations
+415,2,Tropics lowland; semi-arid with soil/terrain limitations
+416,2,Tropics lowland; semi-arid with soil/terrain limitations
+417,53,Desert/Arid climate
+418,56,Dominantly built-up land
+419,56,Dominantly built-up land
+420,56,Dominantly built-up land
+421,56,Dominantly built-up land
+422,56,Dominantly built-up land
+423,56,Dominantly built-up land
+424,56,Dominantly built-up land
+425,56,Dominantly built-up land
+426,56,Dominantly built-up land
+427,56,Dominantly built-up land
+428,53,Desert/Arid climate
+429,53,Desert/Arid climate
+430,53,Desert/Arid climate
+431,53,Desert/Arid climate
+432,51,Ample irrigated soils
+433,56,Dominantly built-up land
+434,56,Dominantly built-up land
+435,56,Dominantly built-up land
+436,2,Tropics lowland; semi-arid with soil/terrain limitations
+437,2,Tropics lowland; semi-arid with soil/terrain limitations
+438,50,Land with severe soil/terrain limitations
+439,53,Desert/Arid climate
+440,2,Tropics lowland; semi-arid with soil/terrain limitations
+441,53,Desert/Arid climate
+442,2,Tropics lowland; semi-arid with soil/terrain limitations
+443,53,Desert/Arid climate
+444,53,Desert/Arid climate
+445,2,Tropics lowland; semi-arid with soil/terrain limitations
+446,2,Tropics lowland; semi-arid with soil/terrain limitations
+447,53,Desert/Arid climate
+448,2,Tropics lowland; semi-arid with soil/terrain limitations
+449,2,Tropics lowland; semi-arid with soil/terrain limitations
+450,2,Tropics lowland; semi-arid with soil/terrain limitations
+451,2,Tropics lowland; semi-arid with soil/terrain limitations
+452,53,Desert/Arid climate
+453,53,Desert/Arid climate
+454,53,Desert/Arid climate
+455,53,Desert/Arid climate
+456,53,Desert/Arid climate
+457,53,Desert/Arid climate
+458,53,Desert/Arid climate
+459,53,Desert/Arid climate
+460,56,Dominantly built-up land
+461,56,Dominantly built-up land
+462,52,Dominantly hydromorphic soils
+463,52,Dominantly hydromorphic soils
+464,52,Dominantly hydromorphic soils
+465,2,Tropics lowland; semi-arid with soil/terrain limitations
+466,2,Tropics lowland; semi-arid with soil/terrain limitations
+467,50,Land with severe soil/terrain limitations
+468,50,Land with severe soil/terrain limitations
+469,50,Land with severe soil/terrain limitations
+470,50,Land with severe soil/terrain limitations
+471,50,Land with severe soil/terrain limitations
+472,50,Land with severe soil/terrain limitations
+473,2,Tropics lowland; semi-arid with soil/terrain limitations
+474,2,Tropics lowland; semi-arid with soil/terrain limitations
+475,2,Tropics lowland; semi-arid with soil/terrain limitations
+476,2,Tropics lowland; semi-arid with soil/terrain limitations
+477,2,Tropics lowland; semi-arid with soil/terrain limitations
+478,2,Tropics lowland; semi-arid with soil/terrain limitations
+479,2,Tropics lowland; semi-arid with soil/terrain limitations
+480,2,Tropics lowland; semi-arid with soil/terrain limitations
+481,2,Tropics lowland; semi-arid with soil/terrain limitations
+482,2,Tropics lowland; semi-arid with soil/terrain limitations
+483,2,Tropics lowland; semi-arid with soil/terrain limitations
+484,2,Tropics lowland; semi-arid with soil/terrain limitations
+485,2,Tropics lowland; semi-arid with soil/terrain limitations
+486,2,Tropics lowland; semi-arid with soil/terrain limitations
+487,2,Tropics lowland; semi-arid with soil/terrain limitations
+488,2,Tropics lowland; semi-arid with soil/terrain limitations
+489,2,Tropics lowland; semi-arid with soil/terrain limitations
+490,2,Tropics lowland; semi-arid with soil/terrain limitations
+491,2,Tropics lowland; semi-arid with soil/terrain limitations
+492,2,Tropics lowland; semi-arid with soil/terrain limitations
+493,2,Tropics lowland; semi-arid with soil/terrain limitations
+494,2,Tropics lowland; semi-arid with soil/terrain limitations
+495,1,Tropics lowland; semi-arid no soil/terrain limitations
+496,2,Tropics lowland; semi-arid with soil/terrain limitations
+497,2,Tropics lowland; semi-arid with soil/terrain limitations
+498,2,Tropics lowland; semi-arid with soil/terrain limitations
+499,2,Tropics lowland; semi-arid with soil/terrain limitations
+500,2,Tropics lowland; semi-arid with soil/terrain limitations
+501,50,Land with severe soil/terrain limitations
+502,2,Tropics lowland; semi-arid with soil/terrain limitations
+503,2,Tropics lowland; semi-arid with soil/terrain limitations
+504,50,Land with severe soil/terrain limitations
+505,2,Tropics lowland; semi-arid with soil/terrain limitations
+506,50,Land with severe soil/terrain limitations
+507,2,Tropics lowland; semi-arid with soil/terrain limitations
+508,2,Tropics lowland; semi-arid with soil/terrain limitations
+509,2,Tropics lowland; semi-arid with soil/terrain limitations
+510,2,Tropics lowland; semi-arid with soil/terrain limitations
+511,56,Dominantly built-up land
+512,56,Dominantly built-up land
+513,56,Dominantly built-up land
+514,56,Dominantly built-up land
+515,56,Dominantly built-up land
+516,2,Tropics lowland; semi-arid with soil/terrain limitations
+517,2,Tropics lowland; semi-arid with soil/terrain limitations
+518,2,Tropics lowland; semi-arid with soil/terrain limitations
+519,2,Tropics lowland; semi-arid with soil/terrain limitations
+520,2,Tropics lowland; semi-arid with soil/terrain limitations
+521,56,Dominantly built-up land
+522,56,Dominantly built-up land
+523,52,Dominantly hydromorphic soils
+524,53,Desert/Arid climate
+525,53,Desert/Arid climate
+526,2,Tropics lowland; semi-arid with soil/terrain limitations
+527,2,Tropics lowland; semi-arid with soil/terrain limitations
+528,2,Tropics lowland; semi-arid with soil/terrain limitations
+529,2,Tropics lowland; semi-arid with soil/terrain limitations
+530,2,Tropics lowland; semi-arid with soil/terrain limitations
+531,53,Desert/Arid climate
+532,53,Desert/Arid climate
+533,53,Desert/Arid climate
+534,2,Tropics lowland; semi-arid with soil/terrain limitations
+535,2,Tropics lowland; semi-arid with soil/terrain limitations
+536,2,Tropics lowland; semi-arid with soil/terrain limitations
+537,1,Tropics lowland; semi-arid no soil/terrain limitations
+538,2,Tropics lowland; semi-arid with soil/terrain limitations
+539,2,Tropics lowland; semi-arid with soil/terrain limitations
+540,56,Dominantly built-up land
+541,53,Desert/Arid climate
+542,56,Dominantly built-up land
+543,53,Desert/Arid climate
+544,53,Desert/Arid climate
+545,2,Tropics lowland; semi-arid with soil/terrain limitations
+546,53,Desert/Arid climate
+547,53,Desert/Arid climate
+548,53,Desert/Arid climate
+549,53,Desert/Arid climate
+550,53,Desert/Arid climate
+551,56,Dominantly built-up land
+552,56,Dominantly built-up land
+553,56,Dominantly built-up land
